@@ -59,13 +59,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     }, Promise.resolve({}));
   };
 
-  const onDrop = withNotification(async (accounts: DropAccount[]) => {
+  const onDrop = withNotification(async () => {
     if (!account) {
       return "";
     }
-    const signature = await drop(network, account, accounts);
+    const signature = await drop(network, account, dropAccounts);
 
-    accounts.reduce(async (agg, { accountId }) => {
+    dropAccounts.reduce(async (agg, { accountId }) => {
       const balanceMap = await agg;
       const balance = await getBalance(network, accountId);
       setAfterMap({ ...balanceMap, [accountId]: balance });

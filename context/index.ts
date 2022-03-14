@@ -20,7 +20,7 @@ export type GlobalContextType = {
   dropDev(): Promise<number>;
   refreshBalance(): Promise<number>;
   createAccount(): Promise<Keypair>;
-  drop(dropAccounts: DropAccount[]): Promise<string>;
+  drop(): Promise<string>;
 };
 
 export const GlobalContext = createContext<GlobalContextType>({
