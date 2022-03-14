@@ -2,12 +2,9 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { Cluster } from "@solana/web3.js";
+import { classNames } from "../../utils/class-names";
 
 const NETWORKS: Cluster[] = ["mainnet-beta", "testnet", "devnet"];
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 interface NetworkNavigationProps {
   network: Cluster;

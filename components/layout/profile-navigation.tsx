@@ -3,10 +3,7 @@ import { Menu, Transition } from "@headlessui/react";
 import LogoImg from "./images/logo.png";
 import Image from "next/image";
 import { BellIcon } from "@heroicons/react/outline";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { classNames } from "../../utils/class-names";
 
 export function ProfileNavigation() {
   return (

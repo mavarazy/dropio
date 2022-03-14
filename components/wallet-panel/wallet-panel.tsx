@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import copy from "copy-to-clipboard";
 import React from "react";
 import { useGlobalState } from "../../context";
+import { Button } from "../button";
 
 export const WalletPanel = () => {
   const { account, createAccount } = useGlobalState();
@@ -25,13 +26,7 @@ export const WalletPanel = () => {
             <FontAwesomeIcon icon={faCopy} className="ml-2" />
           </p>
         ) : (
-          <button
-            type="button"
-            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
-            onClick={createAccount}
-          >
-            NEW
-          </button>
+          <Button text="New" onClick={createAccount} />
         )}
       </div>
     </div>

@@ -7,10 +7,6 @@ import { useGlobalState } from "../../context";
 
 const navs: Array<{ name: string; link: string }> = [];
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export function Navigation() {
   const { network, setNetwork } = useGlobalState();
 

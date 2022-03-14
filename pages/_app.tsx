@@ -16,18 +16,6 @@ import { Notification, NotificationProps } from "../components/notification";
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
 
-  function withNotification<A, T>(f: (a: A) => Promise<T>) {
-    return async (a: A) => {
-      try {
-        return await f(a);
-      } catch (err) {
-        // @ts-ignore
-        notificationRef.current?.error(err.message ?? "Internal error");
-        return Promise.reject(err);
-      }
-    };
-  }
-
   const [network, setNetwork] = useState<Cluster>("devnet");
   const [account, setAccount] = useState<Keypair | null>(null);
   const [mnemonic, setMnemonic] = useState<string | null>(null);
@@ -59,11 +47,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     }, Promise.resolve({}));
   };
 
-  const onDrop = withNotification(async () => {
+  const onDrop = async () => {
     if (!account) {
       return "";
     }
     const signature = await drop(network, account, dropAccounts);
+
+    doRefreshBalance();
 
     dropAccounts.reduce(async (agg, { accountId }) => {
       const balanceMap = await agg;
@@ -73,26 +63,26 @@ function MyApp({ Component, pageProps }: AppProps) {
       return { ...balanceMap, [accountId]: balance };
     }, Promise.resolve({}));
     return signature;
-  });
+  };
 
-  const createNewAccount = withNotification(async () => {
+  const createNewAccount = async () => {
     const { account, mnemonic } = await createAccount();
     setAccount(account);
     setMnemonic(mnemonic);
     return account;
-  });
+  };
 
-  const doRefreshBalance = withNotification(async () => {
+  const doRefreshBalance = async () => {
     const balance = await refreshBalance(network, account);
     setBalance(balance);
     return balance;
-  });
+  };
 
-  const airdrop = withNotification(async () => {
+  const airdrop = async () => {
     const balance = await dropDev(network, account);
     setBalance(balance);
     return balance;
-  });
+  };
 
   return (
     <GlobalContext.Provider
