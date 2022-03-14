@@ -8,8 +8,8 @@ import { SendPanel } from "../components/send-panel";
 const Home: NextPage = () => {
   return (
     <>
-      <WalletPanel />
       <DropTable />
+      <WalletPanel />
       <SendPanel />
     </>
   );

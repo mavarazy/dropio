@@ -38,8 +38,12 @@ export function Navigation() {
                     src={LogoImg}
                     width={32}
                     height={32}
-                    alt="Tiny"
+                    alt="Dropio"
                   />
+                  <div className="ml-2 flex flex-col">
+                    <span className="text-xl font-bold">Dropio</span>
+                    <span className="text-xs">Solana AirDrop tool</span>
+                  </div>
                 </div>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   {navs.map(({ name, link }) => (

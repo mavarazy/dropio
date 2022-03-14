@@ -97,9 +97,12 @@ const drop = async (
   return await sendAndConfirmTransaction(connection, transaction, signers);
 };
 
-const dropMe = async (network: Cluster, account: Keypair | null) => {
+const dropDev = async (
+  network: Cluster,
+  account: Keypair | null
+): Promise<number> => {
   // This line ensures the function returns before running if no account has been set
-  if (!account) return;
+  if (!account || network !== "devnet") return 0;
 
   try {
     const connection = new Connection(clusterApiUrl(network), "confirmed");
@@ -108,10 +111,7 @@ const dropMe = async (network: Cluster, account: Keypair | null) => {
       publicKey,
       LAMPORTS_PER_SOL
     );
-    const result = await connection.confirmTransaction(
-      airdropSignature,
-      "confirmed"
-    );
+    await connection.confirmTransaction(airdropSignature, "confirmed");
     return await refreshBalance(network, account);
   } catch (error) {
     const errorMessage =
@@ -124,7 +124,7 @@ export {
   createAccount,
   getBalance,
   refreshBalance,
-  dropMe as handleAirdrop,
+  dropDev,
   drop,
   restoreAccount,
 };

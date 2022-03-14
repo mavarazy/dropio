@@ -26,11 +26,9 @@ export default function DropTable() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 mt-8">
-      <div className="sm:flex sm:items-center">
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <FileInput onChange={handleImport} />
-        </div>
+    <div className="mt-8">
+      <div className="flex flex-1 justify-end">
+        <FileInput onChange={handleImport} />
       </div>
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
