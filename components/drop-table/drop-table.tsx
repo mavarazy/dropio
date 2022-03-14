@@ -17,8 +17,7 @@ export default function DropTable() {
     const result = Papa.parse(source, {
       header: true,
       transform: (value, field) => {
-        console.log(field);
-        return field === "amount" ? parseFloat(value) : value;
+        return field === "drop" ? parseFloat(value) : value;
       },
     });
 
@@ -36,9 +35,15 @@ export default function DropTable() {
                   <tr>
                     <th
                       scope="col"
-                      className="py-3 pl-4 pr-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 sm:pl-6"
+                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6"
                     >
                       Wallet
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500"
+                    >
+                      Drop
                     </th>
                     <th
                       scope="col"
@@ -50,32 +55,25 @@ export default function DropTable() {
                       scope="col"
                       className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
                     >
-                      Drop
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
-                    >
                       After
-                    </th>
-                    <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
-                      <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {dropAccounts.map((account) => (
-                    <tr key={account.accountId}>
+                    <tr key={account.wallet}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.accountId}
+                        {account.wallet}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        {beforeMap[account.accountId]}
+                        {account.drop}
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500">
-                        {account.amount}
+                      <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
+                        {beforeMap[account.wallet]}
                       </td>
-                      <td className="px-3">{afterMap[account.accountId]}</td>
+                      <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
+                        {afterMap[account.wallet]}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

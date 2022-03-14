@@ -14,7 +14,7 @@ export const SendPanel = () => {
     refreshBalance,
   } = useGlobalState();
 
-  const dropAmount = dropAccounts.reduce((agg, { amount }) => agg + amount, 0);
+  const dropAmount = dropAccounts.reduce((agg, { drop: amount }) => agg + amount, 0);
 
   return (
     <dl className="mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow-lg divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x">

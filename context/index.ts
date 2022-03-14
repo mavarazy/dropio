@@ -3,8 +3,8 @@ import { Cluster } from "@solana/web3.js";
 import { AccountRestoreForm, AccountInfo } from "../utils/account-service";
 
 export interface DropAccount {
-  accountId: string;
-  amount: number;
+  wallet: string;
+  drop: number;
 }
 
 export type GlobalContextType = {

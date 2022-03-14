@@ -1,4 +1,3 @@
-// Import any additional classes and/or functions needed from Solana's web3.js library as you go along:
 import {
   Cluster,
   clusterApiUrl,
@@ -10,7 +9,6 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import * as Bip39 from "bip39";
 import { DropAccount } from "../context";
 
 const getBalance = async (network: Cluster, accountId: string) => {
@@ -28,30 +26,6 @@ const getBalance = async (network: Cluster, accountId: string) => {
   }
 };
 
-const createAccount = async (): Promise<{
-  account: Keypair;
-  mnemonic: string;
-}> => {
-  const mnemonic = Bip39.generateMnemonic();
-
-  const seed = Bip39.mnemonicToSeedSync(mnemonic).slice(0, 32);
-  const account = Keypair.fromSeed(seed);
-
-  return { account, mnemonic };
-};
-
-const restoreAccount = async ({
-  mnemonic,
-}: {
-  mnemonic: string;
-}): Promise<Keypair> => {
-  const inputMnemonic = mnemonic.trim().toLowerCase();
-
-  const seed = Bip39.mnemonicToSeedSync(inputMnemonic).slice(0, 32);
-
-  return Keypair.fromSeed(seed);
-};
-
 const drop = async (
   network: Cluster,
   account: Keypair,
@@ -60,7 +34,7 @@ const drop = async (
   const connection = new Connection(clusterApiUrl(network), "confirmed");
 
   const transaction = new Transaction();
-  dropAccounts.forEach(({ accountId, amount }) => {
+  dropAccounts.forEach(({ wallet: accountId, drop: amount }) => {
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: account.publicKey,
@@ -103,4 +77,4 @@ const dropDev = async (
   }
 };
 
-export { createAccount, restoreAccount, getBalance, dropDev, drop };
+export const BalanceService = { getBalance, dropDev, drop };

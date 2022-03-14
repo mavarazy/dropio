@@ -4,7 +4,6 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { DropAccount, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
-import { drop, dropDev, getBalance } from "../utils";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
 import {
@@ -12,6 +11,7 @@ import {
   AccountInfo,
   AccountRestoreForm,
 } from "../utils/account-service";
+import { BalanceService } from "../utils/balance-service";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
@@ -31,9 +31,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     setBeforeMap({});
     setAfterMap({});
-    dropAccounts.reduce(async (agg, { accountId }) => {
+    dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(network, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -43,9 +43,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   const onDropAccountSet = (accounts: DropAccount[]) => {
     setDropAccounts(accounts);
 
-    accounts.reduce(async (agg, { accountId }) => {
+    accounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(network, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -56,13 +56,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (!accountInfo) {
       return "";
     }
-    const signature = await drop(network, accountInfo.account, dropAccounts);
+    const signature = await BalanceService.drop(
+      network,
+      accountInfo.account,
+      dropAccounts
+    );
 
     refreshBalance();
 
-    dropAccounts.reduce(async (agg, { accountId }) => {
+    dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(network, accountId);
       setAfterMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -82,7 +86,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const refreshBalance = async () => {
     if (accountId) {
-      const balance = await getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(network, accountId);
       setBalance(balance);
       return balance;
     }
@@ -102,7 +106,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const airdrop = async () => {
     if (accountInfo?.account) {
-      const balance = await dropDev(network, accountInfo?.account);
+      const balance = await BalanceService.dropDev(
+        network,
+        accountInfo?.account
+      );
       setBalance(balance);
       return balance;
     }
