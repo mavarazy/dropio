@@ -1,8 +1,9 @@
 import { Disclosure } from "@headlessui/react";
-import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
+import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import LogoImg from "./images/logo.png";
 import Image from "next/image";
-import { ProfileNavigation } from "./profile-navigation";
+import { NetworkNavigation } from "./network-navigation";
+import { useGlobalState } from "../../context";
 
 const navs: Array<{ name: string; link: string }> = [];
 
@@ -11,6 +12,8 @@ function classNames(...classes: string[]) {
 }
 
 export function Navigation() {
+  const { network, setNetwork } = useGlobalState();
+
   return (
     <Disclosure as="nav" className="bg-white shadow">
       {({ open }) => (
@@ -50,7 +53,9 @@ export function Navigation() {
                   ))}
                 </div>
               </div>
-              <ProfileNavigation />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <NetworkNavigation network={network} setNetwork={setNetwork} />
+              </div>
             </div>
           </div>
 

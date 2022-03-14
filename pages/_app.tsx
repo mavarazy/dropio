@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Cluster, Keypair } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { DropAccount, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
-import { drop, getBalance } from "../utils";
+import { createAccount, drop, getBalance } from "../utils";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [network, setNetwork] = useState<Cluster>("devnet");
@@ -14,6 +14,17 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
   const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
   const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
+
+  useEffect(() => {
+    setBeforeMap({});
+    dropAccounts.reduce(async (agg, { accountId }) => {
+      const balanceMap = await agg;
+      const balance = await getBalance(network, accountId);
+      setBeforeMap({ ...balanceMap, [accountId]: balance });
+
+      return { ...balanceMap, [accountId]: balance };
+    }, Promise.resolve({}));
+  }, [network]);
 
   const onDropAccountSet = (accounts: DropAccount[]) => {
     setDropAccounts(accounts);
@@ -43,15 +54,21 @@ function MyApp({ Component, pageProps }: AppProps) {
     return signature;
   };
 
+  const createNewAccount = async () => {
+    const { account, mnemonic } = await createAccount();
+    setAccount(account);
+    setMnemonic(mnemonic);
+    return account;
+  };
+
   return (
     <GlobalContext.Provider
       value={{
         network,
         setNetwork,
         account,
-        setAccount,
         mnemonic,
-        setMnemonic,
+        createAccount: createNewAccount,
         balance,
         setBalance,
         dropAccounts,

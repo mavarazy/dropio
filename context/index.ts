@@ -8,17 +8,16 @@ export interface DropAccount {
 
 export type GlobalContextType = {
   network: Cluster;
-  setNetwork: React.Dispatch<React.SetStateAction<Cluster>>;
   account: Keypair | null;
-  setAccount: React.Dispatch<React.SetStateAction<Keypair | null>>;
   mnemonic: string | null;
-  setMnemonic: React.Dispatch<React.SetStateAction<string | null>>;
   balance: number | null;
+  setNetwork: React.Dispatch<React.SetStateAction<Cluster>>;
   setBalance: React.Dispatch<React.SetStateAction<number | null>>;
   dropAccounts: DropAccount[];
   setDropAccounts: (accounts: DropAccount[]) => void;
   beforeMap: { [key in string]: number };
   afterMap: { [key in string]: number };
+  createAccount(): Promise<Keypair>;
   drop(dropAccounts: DropAccount[]): Promise<string>;
 };
 
@@ -26,15 +25,14 @@ export const GlobalContext = createContext<GlobalContextType>({
   network: "devnet",
   setNetwork: () => null,
   account: null,
-  setAccount: () => null,
   mnemonic: null,
-  setMnemonic: () => null,
   balance: null,
   setBalance: () => null,
   dropAccounts: [],
   setDropAccounts: () => null,
   beforeMap: {},
   afterMap: {},
+  createAccount: () => Promise.resolve(Keypair.generate()),
   drop: () => Promise.resolve(""),
 });
 
