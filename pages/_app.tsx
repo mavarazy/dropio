@@ -1,28 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Cluster, Keypair } from "@solana/web3.js";
+import { Cluster } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { DropAccount, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
-import {
-  createAccount,
-  drop,
-  dropDev,
-  getBalance,
-  restoreAccount,
-} from "../utils";
+import { drop, dropDev, getBalance } from "../utils";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
+import {
+  AccountService,
+  AccountInfo,
+  AccountRestoreForm,
+} from "../utils/account-service";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
 
   const [network, setNetwork] = useState<Cluster>("devnet");
-  const [account, setAccount] = useState<Keypair | null>(null);
+  const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
   const [accountId, setAccountId] = useState<string | null>(null);
 
-  const [mnemonic, setMnemonic] = useState<string | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
   const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
@@ -55,12 +53,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   };
 
   const onDrop = async () => {
-    if (!account) {
+    if (!accountInfo) {
       return "";
     }
-    const signature = await drop(network, account, dropAccounts);
+    const signature = await drop(network, accountInfo.account, dropAccounts);
 
-    doRefreshBalance();
+    refreshBalance();
 
     dropAccounts.reduce(async (agg, { accountId }) => {
       const balanceMap = await agg;
@@ -72,18 +70,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     return signature;
   };
 
-  const createNewAccount = async () => {
-    const { account, mnemonic } = await createAccount();
-    setAccount(account);
+  const createAccount = async () => {
+    const accountInfo = await AccountService.create();
+
+    setAccountInfo(accountInfo);
     setAccountId(accountId);
-    setMnemonic(mnemonic);
 
-    router.push(`/drop/${account.publicKey.toString()}`);
-
-    return account;
+    router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
+    return accountInfo;
   };
 
-  const doRefreshBalance = async () => {
+  const refreshBalance = async () => {
     if (accountId) {
       const balance = await getBalance(network, accountId);
       setBalance(balance);
@@ -92,21 +89,24 @@ function MyApp({ Component, pageProps }: AppProps) {
     return 0;
   };
 
-  const doRestoreAссount = async (form: { mnemonic: string }) => {
-    const account = await restoreAccount(form);
-    setAccount(account);
-    setMnemonic(form.mnemonic);
-    doRefreshBalance();
+  const restoreAccount = async (form: AccountRestoreForm) => {
+    const accountInfo = await AccountService.restore(form);
+    setAccountInfo(accountInfo);
 
-    router.push(`/drop/${account.publicKey.toString()}`);
+    refreshBalance();
 
-    return account;
+    router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
+
+    return accountInfo;
   };
 
   const airdrop = async () => {
-    const balance = await dropDev(network, account);
-    setBalance(balance);
-    return balance;
+    if (accountInfo?.account) {
+      const balance = await dropDev(network, accountInfo?.account);
+      setBalance(balance);
+      return balance;
+    }
+    return 0;
   };
 
   return (
@@ -114,17 +114,16 @@ function MyApp({ Component, pageProps }: AppProps) {
       value={{
         network,
         setNetwork,
-        account,
+        accountInfo,
         accountId,
         setAccountId,
-        mnemonic,
-        createAccount: createNewAccount,
+        createAccount,
         balance,
-        refreshBalance: doRefreshBalance,
+        refreshBalance,
         dropAccounts,
+        restoreAccount,
         dropDev: airdrop,
         setDropAccounts: onDropAccountSet,
-        restoreAccount: doRestoreAссount,
         beforeMap,
         afterMap,
         drop: onDrop,

@@ -6,7 +6,7 @@ import { Button } from "../button";
 export const SendPanel = () => {
   const {
     balance,
-    account,
+    accountInfo,
     network,
     dropAccounts,
     drop,
@@ -44,7 +44,7 @@ export const SendPanel = () => {
       <div className="px-4 py-5 sm:p-6">
         <dt className="text-base font-normal text-gray-900">Send</dt>
         <dd className="mt-1 flex items-baseline md:block lg:flex">
-          {balance > dropAmount && dropAmount > 0 && account ? (
+          {balance > dropAmount && dropAmount > 0 && accountInfo ? (
             <Button icon={faCashRegister} text="Send" onClick={drop} />
           ) : (
             <div className="flex items-baseline text-2xl font-semibold">

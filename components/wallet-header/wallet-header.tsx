@@ -26,7 +26,7 @@ const CopiableText: React.FC<CopiableTextProps> = ({ text }) => {
 };
 
 export const WalletHeader = () => {
-  const { accountId, mnemonic } = useGlobalState();
+  const { accountId, accountInfo } = useGlobalState();
 
   return (
     <header className="bg-gray-50 shadow  flex py-6 px-4 sm:px-6 lg:px-8">
@@ -34,10 +34,10 @@ export const WalletHeader = () => {
         <h1 className="text-xl font-bold text-gray-900">Wallet</h1>
         {accountId && <CopiableText text={accountId} />}
       </div>
-      {mnemonic ? (
+      {accountInfo?.mnemonic ? (
         <div className="flex flex-1 flex-col text-right">
           <h1 className="text-xl font-bold text-gray-900">Mnemonic</h1>
-          {mnemonic && <CopiableText text={mnemonic} />}
+          <CopiableText text={accountInfo?.mnemonic} />
         </div>
       ) : (
         <div className="flex flex-1 flex-col items-end">
