@@ -40,7 +40,11 @@ const createAccount = async (): Promise<{
   return { account, mnemonic };
 };
 
-const restoreAccount = async (mnemonic: string): Promise<Keypair> => {
+const restoreAccount = async ({
+  mnemonic,
+}: {
+  mnemonic: string;
+}): Promise<Keypair> => {
   const inputMnemonic = mnemonic.trim().toLowerCase();
 
   const seed = Bip39.mnemonicToSeedSync(inputMnemonic).slice(0, 32);

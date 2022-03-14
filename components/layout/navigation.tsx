@@ -4,6 +4,7 @@ import LogoImg from "./images/logo.png";
 import Image from "next/image";
 import { NetworkNavigation } from "./network-navigation";
 import { useGlobalState } from "../../context";
+import Link from "next/link";
 
 const navs: Array<{ name: string; link: string }> = [];
 
@@ -36,9 +37,11 @@ export function Navigation() {
                     height={32}
                     alt="Dropio"
                   />
-                  <div className="ml-2 flex flex-col">
-                    <span className="text-xl font-bold">Dropio</span>
-                  </div>
+                  <Link href="/" passHref>
+                    <span className="text-xl font-bold cursor-pointer ml-2">
+                      Dropio
+                    </span>
+                  </Link>
                 </div>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   {navs.map(({ name, link }) => (

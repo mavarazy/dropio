@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import copy from "copy-to-clipboard";
 import React from "react";
 import { useGlobalState } from "../../context";
+import { RestoreDropForm } from "../landing-hero/restore-drop-form";
 
 interface CopiableTextProps {
   text: string;
@@ -33,10 +34,14 @@ export const WalletHeader = () => {
         <h1 className="text-xl font-bold text-gray-900">Wallet</h1>
         {accountId && <CopiableText text={accountId} />}
       </div>
-      {mnemonic && (
+      {mnemonic ? (
         <div className="flex flex-1 flex-col text-right">
           <h1 className="text-xl font-bold text-gray-900">Mnemonic</h1>
           {mnemonic && <CopiableText text={mnemonic} />}
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col items-end">
+          <RestoreDropForm />
         </div>
       )}
     </header>

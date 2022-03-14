@@ -21,6 +21,7 @@ export type GlobalContextType = {
 
   dropDev(): Promise<number>;
   refreshBalance(): Promise<number>;
+  restoreAccount(mnemonicForm: { mnemonic: string }): Promise<Keypair>;
   createAccount(): Promise<Keypair>;
   drop(): Promise<string>;
 };
@@ -37,6 +38,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   setDropAccounts: () => null,
   beforeMap: {},
   afterMap: {},
+  restoreAccount: () => Promise.resolve(Keypair.generate()),
   refreshBalance: () => Promise.resolve(0),
   createAccount: () => Promise.resolve(Keypair.generate()),
   dropDev: () => Promise.resolve(0),

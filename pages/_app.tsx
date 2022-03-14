@@ -4,7 +4,13 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { DropAccount, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
-import { createAccount, drop, dropDev, getBalance } from "../utils";
+import {
+  createAccount,
+  drop,
+  dropDev,
+  getBalance,
+  restoreAccount,
+} from "../utils";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
 
@@ -26,6 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     setBeforeMap({});
+    setAfterMap({});
     dropAccounts.reduce(async (agg, { accountId }) => {
       const balanceMap = await agg;
       const balance = await getBalance(network, accountId);
@@ -85,6 +92,17 @@ function MyApp({ Component, pageProps }: AppProps) {
     return 0;
   };
 
+  const doRestoreAссount = async (form: { mnemonic: string }) => {
+    const account = await restoreAccount(form);
+    setAccount(account);
+    setMnemonic(form.mnemonic);
+    doRefreshBalance();
+
+    router.push(`/drop/${account.publicKey.toString()}`);
+
+    return account;
+  };
+
   const airdrop = async () => {
     const balance = await dropDev(network, account);
     setBalance(balance);
@@ -106,6 +124,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         dropAccounts,
         dropDev: airdrop,
         setDropAccounts: onDropAccountSet,
+        restoreAccount: doRestoreAссount,
         beforeMap,
         afterMap,
         drop: onDrop,
