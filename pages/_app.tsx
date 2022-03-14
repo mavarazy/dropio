@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Cluster, Keypair } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
@@ -11,8 +11,23 @@ import {
   getBalance,
   refreshBalance,
 } from "../utils";
+import { Notification, NotificationProps } from "../components/notification";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const notificationRef = useRef<NotificationProps>(null);
+
+  function withNotification<A, T>(f: (a: A) => Promise<T>) {
+    return async (a: A) => {
+      try {
+        return await f(a);
+      } catch (err) {
+        // @ts-ignore
+        notificationRef.current?.error(err.message ?? "Internal error");
+        return Promise.reject(err);
+      }
+    };
+  }
+
   const [network, setNetwork] = useState<Cluster>("devnet");
   const [account, setAccount] = useState<Keypair | null>(null);
   const [mnemonic, setMnemonic] = useState<string | null>(null);
@@ -44,7 +59,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     }, Promise.resolve({}));
   };
 
-  const onDrop = async (accounts: DropAccount[]) => {
+  const onDrop = withNotification(async (accounts: DropAccount[]) => {
     if (!account) {
       return "";
     }
@@ -58,26 +73,26 @@ function MyApp({ Component, pageProps }: AppProps) {
       return { ...balanceMap, [accountId]: balance };
     }, Promise.resolve({}));
     return signature;
-  };
+  });
 
-  const createNewAccount = async () => {
+  const createNewAccount = withNotification(async () => {
     const { account, mnemonic } = await createAccount();
     setAccount(account);
     setMnemonic(mnemonic);
     return account;
-  };
+  });
 
-  const doRefreshBalance = async () => {
+  const doRefreshBalance = withNotification(async () => {
     const balance = await refreshBalance(network, account);
     setBalance(balance);
     return balance;
-  };
+  });
 
-  const airdrop = async () => {
+  const airdrop = withNotification(async () => {
     const balance = await dropDev(network, account);
     setBalance(balance);
     return balance;
-  };
+  });
 
   return (
     <GlobalContext.Provider
@@ -100,6 +115,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
+      <Notification ref={notificationRef} />
     </GlobalContext.Provider>
   );
 }

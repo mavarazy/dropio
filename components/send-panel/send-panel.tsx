@@ -5,8 +5,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGlobalState } from "../../context";
 
 export const SendPanel = () => {
-  const { account, balance, dropAccounts, dropDev, refreshBalance, drop } =
-    useGlobalState();
+  const {
+    account,
+    balance,
+    network,
+    dropAccounts,
+    dropDev,
+    refreshBalance,
+    drop,
+  } = useGlobalState();
 
   const dropAmount = dropAccounts.reduce((agg, { amount }) => agg + amount, 0);
 
@@ -31,12 +38,14 @@ export const SendPanel = () => {
             >
               <FontAwesomeIcon icon={faSync} />
             </button>
-            <button
-              className="flex px-2 py-2 bg-green-600 text-white rounded-full shadow-lg uppercase cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 hover:translate-y-1 transition duration-50 ease-in-out"
-              onClick={dropDev}
-            >
-              <FontAwesomeIcon icon={faDropbox} />
-            </button>
+            {network === "devnet" && (
+              <button
+                className="flex px-2 py-2 bg-green-600 text-white rounded-full shadow-lg uppercase cursor-pointer hover:bg-indigo-50 hover:text-indigo-600 hover:translate-y-1 transition duration-50 ease-in-out"
+                onClick={dropDev}
+              >
+                <FontAwesomeIcon icon={faDropbox} />
+              </button>
+            )}
           </div>
         </dd>
       </div>

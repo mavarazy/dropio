@@ -26,7 +26,7 @@ export default function DropTable() {
   };
 
   return (
-    <div className="mt-8">
+    <div>
       <div className="flex flex-1 justify-end">
         <FileInput onChange={handleImport} />
       </div>
