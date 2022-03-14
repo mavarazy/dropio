@@ -7,11 +7,9 @@ import { SendPanel } from "../components/send-panel";
 
 const Home: NextPage = () => {
   return (
-    <>
+    <main className="flex flex-1 flex-col">
       <WalletPanel />
-      <DropTable />
-      <SendPanel />
-    </>
+    </main>
   );
 };
 

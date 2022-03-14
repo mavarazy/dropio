@@ -12,6 +12,7 @@ import {
   refreshBalance,
 } from "../utils";
 import { Notification, NotificationProps } from "../components/notification";
+import { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
@@ -23,6 +24,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
   const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
   const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
+
+  const router = useRouter();
 
   useEffect(() => {
     setBeforeMap({});
@@ -69,6 +72,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     const { account, mnemonic } = await createAccount();
     setAccount(account);
     setMnemonic(mnemonic);
+
+    router.push(`/drop/${account.publicKey.toString()}`);
+
     return account;
   };
 

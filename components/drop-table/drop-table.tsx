@@ -27,9 +27,6 @@ export default function DropTable() {
 
   return (
     <div>
-      <div className="flex flex-1 justify-end">
-        <FileInput onChange={handleImport} />
-      </div>
       <div className="mt-8 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
@@ -86,6 +83,9 @@ export default function DropTable() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex flex-1 justify-end mt-4">
+        <FileInput onChange={handleImport} />
       </div>
     </div>
   );

@@ -9,11 +9,7 @@ export const Layout = ({
 }): ReactElement => (
   <div className="flex flex-col min-h-screen">
     <Navigation />
-    <main className="flex flex-1">
-      <div className="flex flex-1 flex-col max-w-5xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </div>
-    </main>
+    {children}
     <Footer />
   </div>
 );
