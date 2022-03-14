@@ -4,8 +4,15 @@ import { useGlobalState } from "../../context";
 import { Button } from "../button";
 
 export const SendPanel = () => {
-  const { balance, network, dropAccounts, drop, dropDev, refreshBalance } =
-    useGlobalState();
+  const {
+    balance,
+    account,
+    network,
+    dropAccounts,
+    drop,
+    dropDev,
+    refreshBalance,
+  } = useGlobalState();
 
   const dropAmount = dropAccounts.reduce((agg, { amount }) => agg + amount, 0);
 
@@ -35,9 +42,23 @@ export const SendPanel = () => {
       </div>
 
       <div className="px-4 py-5 sm:p-6">
-        <dt className="text-base font-normal text-gray-900"></dt>
-        <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
-          <Button icon={faCashRegister} text="Send" onClick={drop} />
+        <dt className="text-base font-normal text-gray-900">Send</dt>
+        <dd className="mt-1 flex items-baseline md:block lg:flex">
+          {balance > dropAmount && dropAmount > 0 && account ? (
+            <Button icon={faCashRegister} text="Send" onClick={drop} />
+          ) : (
+            <div className="flex items-baseline text-2xl font-semibold">
+              {dropAmount === 0 ? (
+                <span className="text-green-600">All good</span>
+              ) : dropAmount > balance ? (
+                <span className="text-red-600">
+                  {(dropAmount - balance).toPrecision(5)}
+                </span>
+              ) : (
+                <span className="text-red-600">Need your mnemonic</span>
+              )}
+            </div>
+          )}
         </dd>
       </div>
     </dl>

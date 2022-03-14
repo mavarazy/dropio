@@ -14,7 +14,9 @@ export const WalletPanel = () => {
         </h2>
         <div className="mt-8 flex justify-center">
           <div className="inline-flex">
-            <Button text="New" onClick={createAccount} />
+            <Button onClick={createAccount}>
+              <span className="px-6 font-light py-1 text-xl">New</span>
+            </Button>
           </div>
         </div>
       </div>

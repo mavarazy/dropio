@@ -4,13 +4,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { DropAccount, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
-import {
-  createAccount,
-  drop,
-  dropDev,
-  getBalance,
-  refreshBalance,
-} from "../utils";
+import { createAccount, drop, dropDev, getBalance } from "../utils";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
 
@@ -19,6 +13,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [network, setNetwork] = useState<Cluster>("devnet");
   const [account, setAccount] = useState<Keypair | null>(null);
+
+  const [accountId, setAccountId] = useState<string | null>(null);
+
   const [mnemonic, setMnemonic] = useState<string | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
@@ -71,6 +68,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const createNewAccount = async () => {
     const { account, mnemonic } = await createAccount();
     setAccount(account);
+    setAccountId(accountId);
     setMnemonic(mnemonic);
 
     router.push(`/drop/${account.publicKey.toString()}`);
@@ -79,9 +77,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   };
 
   const doRefreshBalance = async () => {
-    const balance = await refreshBalance(network, account);
-    setBalance(balance);
-    return balance;
+    if (accountId) {
+      const balance = await getBalance(network, accountId);
+      setBalance(balance);
+      return balance;
+    }
+    return 0;
   };
 
   const airdrop = async () => {
@@ -96,6 +97,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         network,
         setNetwork,
         account,
+        accountId,
+        setAccountId,
         mnemonic,
         createAccount: createNewAccount,
         balance,

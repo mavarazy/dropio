@@ -9,6 +9,8 @@ export interface DropAccount {
 export type GlobalContextType = {
   network: Cluster;
   setNetwork: React.Dispatch<React.SetStateAction<Cluster>>;
+  accountId: string | null;
+  setAccountId(accountId: string): void;
   account: Keypair | null;
   mnemonic: string | null;
   balance: number;
@@ -26,6 +28,8 @@ export type GlobalContextType = {
 export const GlobalContext = createContext<GlobalContextType>({
   network: "devnet",
   setNetwork: () => null,
+  accountId: null,
+  setAccountId: () => null,
   account: null,
   mnemonic: null,
   balance: 0,
