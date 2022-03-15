@@ -31,7 +31,7 @@ const navigation = {
     },
     {
       name: "GitHub",
-      href: "https://github.com/tinycolony",
+      href: "https://github.com/TinyColonyGame",
       icon: () => <FontAwesomeIcon icon={faGithub} className="h-6 w-6" />,
     },
   ],
