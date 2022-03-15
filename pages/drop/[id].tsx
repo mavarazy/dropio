@@ -6,6 +6,7 @@ import { WalletHeader } from "../../components/wallet-header";
 import { useRouter } from "next/router";
 import { useGlobalState } from "../../context";
 import { StackingPicker } from "../../components/stacking-nav";
+import { TokenAccountPanel } from "../../components/token-account-panel";
 
 const Drop: NextPage = () => {
   const router = useRouter();
@@ -25,6 +26,10 @@ const Drop: NextPage = () => {
         <div className="max-w-5xl flex flex-1 flex-col">
           <StackingPicker />
           <SendPanel />
+          <div className="my-4">
+            <TokenAccountPanel />
+          </div>
+
           <DropTable />
         </div>
       </div>

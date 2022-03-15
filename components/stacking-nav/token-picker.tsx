@@ -1,28 +1,13 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/outline";
-import { TokenInfo } from "@solana/spl-token-registry";
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import { useGlobalState } from "../../context";
-
-const TokenLogo = ({
-  logoURI,
-  width,
-  className,
-}: Pick<TokenInfo, "logoURI"> & { width: number; className: string }) => (
-  <img
-    src={logoURI ?? "/default-token-logo.svg"}
-    width={width}
-    height={width}
-    onError={({ currentTarget }) => {
-      currentTarget.onerror = null;
-      currentTarget.src = "/default-token-logo.svg";
-    }}
-    className={className}
-  />
-);
+import { TokenLogo } from "../token-logo";
 
 export const TokenPicker = () => {
   const { mode, tokens, token, setToken } = useGlobalState();
+
+  console.log(token.address);
 
   if (mode !== "Token") {
     return null;
@@ -36,7 +21,7 @@ export const TokenPicker = () => {
             <TokenLogo
               logoURI={token.logoURI}
               className="p-1 rounded-full"
-              width={42}
+              size={42}
             />
             <span className="flex items-center w-full border-none focus:ring-0 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900">
               {token.name}
@@ -91,7 +76,7 @@ export const TokenPicker = () => {
                           {token.logoURI && (
                             <TokenLogo
                               logoURI={token.logoURI}
-                              width={20}
+                              size={20}
                               className="rounded-full max-w-5 max-h-5"
                             />
                           )}

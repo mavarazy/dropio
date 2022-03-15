@@ -1,3 +1,4 @@
+import { AccountLayout, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   Cluster,
   clusterApiUrl,
@@ -9,7 +10,30 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { DropAccount } from "../context";
+import { AccountBalance, DropAccount, TokenAccount } from "../context";
+
+const getTokens = async (
+  cluster: Cluster,
+  accountId: string
+): Promise<TokenAccount[]> => {
+  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+
+  const tokenAccounts = await connection.getTokenAccountsByOwner(
+    new PublicKey(accountId),
+    {
+      programId: TOKEN_PROGRAM_ID,
+    }
+  );
+
+  return tokenAccounts.value.map((accountBuffer) => {
+    const accountInfo = AccountLayout.decode(accountBuffer.account.data);
+
+    return {
+      address: accountInfo.mint.toString(),
+      amount: accountInfo.amount,
+    };
+  });
+};
 
 const getBalance = async (cluster: Cluster, accountId: string) => {
   try {
@@ -24,6 +48,18 @@ const getBalance = async (cluster: Cluster, accountId: string) => {
 
     throw new Error(`Balance refresh failed: ${errorMessage}`);
   }
+};
+
+const getAccountBalance = async (
+  cluster: Cluster,
+  accountId: string
+): Promise<AccountBalance> => {
+  const balance = getBalance(cluster, accountId);
+  const tokens = getTokens(cluster, accountId);
+  return Promise.all([balance, tokens]).then(([balance, tokens]) => ({
+    balance,
+    tokens,
+  }));
 };
 
 const drop = async (
@@ -77,4 +113,4 @@ const dropDev = async (
   }
 };
 
-export const BalanceService = { getBalance, dropDev, drop };
+export const BalanceService = { getAccountBalance, getBalance, dropDev, drop };

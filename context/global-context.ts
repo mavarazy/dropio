@@ -8,6 +8,13 @@ export interface DropAccount {
   drop: number;
 }
 
+export type TokenAccount = Pick<TokenInfo, "address"> & { amount: bigint };
+
+export interface AccountBalance {
+  balance: number;
+  tokens: TokenAccount[];
+}
+
 export type DropMode = "SOL" | "NFT" | "Token";
 
 export const FakeToken: TokenInfo = {
@@ -30,6 +37,9 @@ export type GlobalContextType = {
   tokens: TokenInfo[];
 
   accountId: string | null;
+  balance: number;
+  tokenAccounts: Array<{ address: string; amount: number }>;
+
   setAccountId(accountId: string): void;
 
   accountInfo: AccountInfo | null;
@@ -37,7 +47,6 @@ export type GlobalContextType = {
   dropAccounts: DropAccount[];
   setDropAccounts: (accounts: DropAccount[]) => void;
 
-  balance: number;
   beforeMap: { [key in string]: number };
   afterMap: { [key in string]: number };
 
@@ -66,6 +75,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   setAccountId: () => null,
 
   balance: 0,
+  tokenAccounts: [],
 
   dropAccounts: [],
   setDropAccounts: () => null,

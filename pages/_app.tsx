@@ -30,6 +30,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [accountId, setAccountId] = useState<string | null>(null);
 
   const [balance, setBalance] = useState<number>(0);
+  const [tokenAccounts, setTokenAccounts] = useState<
+    Array<{ address: string; amount: number }>
+  >([]);
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
   const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
   const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
@@ -160,6 +163,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         setAccountId,
         createAccount,
         balance,
+        tokenAccounts,
         refreshBalance,
         dropAccounts,
         restoreAccount,
