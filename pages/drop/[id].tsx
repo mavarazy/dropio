@@ -5,6 +5,7 @@ import { SendPanel } from "../../components/send-panel";
 import { WalletHeader } from "../../components/wallet-header";
 import { useRouter } from "next/router";
 import { useGlobalState } from "../../context";
+import { StackingPicker } from "../../components/stacking-nav";
 
 const Drop: NextPage = () => {
   const router = useRouter();
@@ -19,6 +20,7 @@ const Drop: NextPage = () => {
       <WalletHeader />
       <div className="flex flex-1 justify-center sm:px-6 lg:px-8">
         <div className="max-w-5xl flex flex-1 flex-col">
+          <StackingPicker />
           <SendPanel />
           <DropTable />
         </div>
