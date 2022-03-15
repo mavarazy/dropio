@@ -50,7 +50,7 @@ const getSolBalance = async (cluster: Cluster, accountId: string) => {
   }
 };
 
-const getWallet = async (
+const getWalletBalance = async (
   cluster: Cluster,
   accountId: string
 ): Promise<WalletBallance> => {
@@ -115,8 +115,7 @@ const dropDev = async (
 };
 
 export const BalanceService = {
-  getAccountBalance: getWallet,
-  getBalance: getSolBalance,
+  getWalletBalance,
   dropDev,
   drop,
 };

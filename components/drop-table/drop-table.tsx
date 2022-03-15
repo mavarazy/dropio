@@ -1,10 +1,39 @@
 import { FileInput } from "./file-input";
 import Papa from "papaparse";
-import { DropAccount, useGlobalState } from "../../context";
+import {
+  DropAccount,
+  DropMode,
+  useGlobalState,
+  WalletBallance,
+} from "../../context";
+import { useCallback } from "react";
 
 export default function DropTable() {
-  const { beforeMap, afterMap, dropAccounts, setDropAccounts } =
-    useGlobalState();
+  const {
+    beforeMap,
+    afterMap,
+    dropAccounts,
+    setDropAccounts,
+    mode,
+    tokenAddress,
+  } = useGlobalState();
+
+  const getBallanceFor = useCallback(
+    (
+      accountId: string,
+      balanceMap: { [key in string]: WalletBallance }
+    ): number => {
+      if (mode === "SOL") {
+        return balanceMap[accountId]?.sol ?? 0;
+      }
+      return (
+        balanceMap[accountId]?.tokens.find(
+          (token) => token.address === tokenAddress
+        )?.amount ?? 0
+      );
+    },
+    [mode, tokenAddress]
+  );
 
   const handleImport = async (files: FileList) => {
     const file = files.item(0);
@@ -69,10 +98,10 @@ export default function DropTable() {
                         {account.drop}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
-                        {beforeMap[account.wallet]}
+                        {getBallanceFor(account.wallet, beforeMap)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
-                        {afterMap[account.wallet]}
+                        {getBallanceFor(account.wallet, afterMap)}
                       </td>
                     </tr>
                   ))}

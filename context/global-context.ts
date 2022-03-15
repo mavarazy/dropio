@@ -45,8 +45,8 @@ export type GlobalContextType = {
   dropAccounts: DropAccount[];
   setDropAccounts: (accounts: DropAccount[]) => void;
 
-  beforeMap: { [key in string]: number };
-  afterMap: { [key in string]: number };
+  beforeMap: { [key in string]: WalletBallance };
+  afterMap: { [key in string]: WalletBallance };
 
   dropDev(): Promise<number>;
   mineDev(): Promise<number>;

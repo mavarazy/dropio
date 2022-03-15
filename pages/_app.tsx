@@ -43,8 +43,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   });
 
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
-  const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
-  const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
+  const [beforeMap, setBeforeMap] = useState<{
+    [key in string]: WalletBallance;
+  }>({});
+  const [afterMap, setAfterMap] = useState<{ [key in string]: WalletBallance }>(
+    {}
+  );
 
   const router = useRouter();
 
@@ -65,7 +69,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(cluster, accountId);
+      const balance = await BalanceService.getWalletBalance(cluster, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -77,7 +81,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     accounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(cluster, accountId);
+      const balance = await BalanceService.getWalletBalance(cluster, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -99,7 +103,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(cluster, accountId);
+      const balance = await BalanceService.getWalletBalance(cluster, accountId);
       setAfterMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -119,7 +123,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const refreshBalance = async () => {
     if (accountId) {
-      const wallet = await BalanceService.getAccountBalance(cluster, accountId);
+      const wallet = await BalanceService.getWalletBalance(cluster, accountId);
       setWallet(wallet);
     }
   };
