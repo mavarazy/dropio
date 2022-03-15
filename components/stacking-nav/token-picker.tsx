@@ -1,7 +1,7 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/outline";
 import { TokenInfo } from "@solana/spl-token-registry";
-import { Fragment, useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import { useThrottle } from "react-use";
 import { useGlobalState } from "../../context";
 import { matchSorter } from "match-sorter";
@@ -19,28 +19,44 @@ function useTokenFilter(clusterTokens: TokenInfo[], term: string) {
   );
 }
 
-export const TokenPicker = () => {
-  const { cluster, tokens } = useGlobalState();
-  const clusterTokens = useMemo(() => {
-    const tokenList = tokens
-      .filterByClusterSlug(cluster)
-      .getList()
-      .filter((tokenInfo) => tokenInfo.decimals > 0);
-    tokenList.sort((a, b) => a.name.localeCompare(b.name));
-    console.log(tokenList.length);
-    return tokenList;
-  }, [cluster, tokens]);
+const TokenLogo = ({
+  logoURI,
+  width,
+  className,
+}: Pick<TokenInfo, "logoURI"> & { width: number; className: string }) => (
+  <img
+    src={logoURI ?? "/default-token-logo.svg"}
+    width={width}
+    height={width}
+    onError={({ currentTarget }) => {
+      currentTarget.onerror = null;
+      currentTarget.src = "/default-token-logo.svg";
+    }}
+    className={className}
+  />
+);
 
-  const [selected, setSelected] = useState<TokenInfo>(clusterTokens[0]);
+export const TokenPicker = () => {
+  const { mode, tokens, token, setToken } = useGlobalState();
+
   const [query, setQuery] = useState("");
 
-  const filteredTokens = useTokenFilter(clusterTokens, query);
+  const filteredTokens = useTokenFilter(tokens, query);
+
+  if (mode !== "Token") {
+    return null;
+  }
 
   return (
-    <div className="w-72 mx-2">
-      <Combobox value={selected} onChange={setSelected}>
+    <div className="w-96 mx-2">
+      <Combobox value={token} onChange={setToken}>
         <div className="relative mt-1">
-          <div className="relative w-full text-left bg-white rounded-lg shadow-md cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-teal-300 focus-visible:ring-offset-2 sm:text-sm overflow-hidden">
+          <div className="relative w-full flex text-left bg-white rounded-lg shadow-md cursor-default sm:text-sm overflow-hidden">
+            <TokenLogo
+              logoURI={token.logoURI}
+              className="p-1 rounded-full"
+              width={42}
+            />
             <Combobox.Input
               className="w-full border-none focus:ring-0 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900"
               displayValue={(token: TokenInfo) => token.name}
@@ -101,10 +117,9 @@ export const TokenPicker = () => {
                             }`}
                           >
                             {token.logoURI && (
-                              <img
-                                src={token.logoURI}
+                              <TokenLogo
+                                logoURI={token.logoURI}
                                 width={20}
-                                height={20}
                                 className="rounded-full max-w-5 max-h-5"
                               />
                             )}

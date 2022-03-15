@@ -1,18 +1,33 @@
 import React, { createContext, useContext } from "react";
 import { Cluster } from "@solana/web3.js";
 import { AccountRestoreForm, AccountInfo } from "../utils/account-service";
-import { TokenListContainer } from "@solana/spl-token-registry";
+import { TokenInfo } from "@solana/spl-token-registry";
 
 export interface DropAccount {
   wallet: string;
   drop: number;
 }
 
+export type DropMode = "SOL" | "NFT" | "Token";
+
+export const FakeToken: TokenInfo = {
+  address: "Test",
+  name: "... loading ...",
+  chainId: 1,
+  decimals: 0,
+  symbol: "LOADING",
+};
+
 export type GlobalContextType = {
   cluster: Cluster;
   setCluster: React.Dispatch<React.SetStateAction<Cluster>>;
 
-  tokens: TokenListContainer;
+  mode: DropMode;
+  setMode(mode: DropMode): void;
+
+  token: TokenInfo;
+  setToken(token: TokenInfo): void;
+  tokens: TokenInfo[];
 
   accountId: string | null;
   setAccountId(accountId: string): void;
@@ -37,7 +52,12 @@ export const GlobalContext = createContext<GlobalContextType>({
   cluster: "devnet",
   setCluster: () => null,
 
-  tokens: new TokenListContainer([]),
+  mode: "SOL",
+  setMode: () => null,
+  setToken: () => null,
+
+  token: FakeToken,
+  tokens: [FakeToken],
 
   accountInfo: null,
 

@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Cluster } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { DropAccount, GlobalContext } from "../context";
+import { DropAccount, DropMode, FakeToken, GlobalContext } from "../context";
 import { Layout } from "../components/layout";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
@@ -12,19 +12,17 @@ import {
   AccountRestoreForm,
 } from "../utils/account-service";
 import { BalanceService } from "../utils/balance-service";
-import {
-  TokenListContainer,
-  TokenListProvider,
-} from "@solana/spl-token-registry";
+import { TokenInfo, TokenListProvider } from "@solana/spl-token-registry";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
 
   const [cluster, setCluster] = useState<Cluster>("devnet");
 
-  const [tokens, setTokens] = useState<TokenListContainer>(
-    new TokenListContainer([])
-  );
+  const [mode, setMode] = useState<DropMode>("SOL");
+
+  const [token, setToken] = useState<TokenInfo>(FakeToken);
+  const [tokens, setTokens] = useState<TokenInfo[]>([FakeToken]);
 
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
@@ -37,13 +35,18 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const router = useRouter();
 
-  useEffect(() => {
-    new TokenListProvider().resolve().then((tokens) => {
-      setTokens(tokens);
-    });
-  }, []);
+  const tokenCatalogue = useMemo(() => new TokenListProvider().resolve(), []);
 
   useEffect(() => {
+    tokenCatalogue.then((tokens) => {
+      const clusterTokens = tokens.filterByClusterSlug(cluster).getList();
+      clusterTokens.sort((a, b) => a.name.localeCompare(b.name));
+      if (clusterTokens.length > 0) {
+        setToken(clusterTokens[0]);
+        setTokens(clusterTokens);
+      }
+    });
+
     setBeforeMap({});
     setAfterMap({});
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
@@ -67,10 +70,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     }, Promise.resolve({}));
   };
 
-  const onDrop = async () => {
+  const drop = async () => {
     if (!accountInfo) {
       return "";
     }
+
     const signature = await BalanceService.drop(
       cluster,
       accountInfo.account,
@@ -136,7 +140,11 @@ function MyApp({ Component, pageProps }: AppProps) {
       value={{
         cluster,
         setCluster,
-        tokens,
+        mode,
+        setMode,
+        token,
+        setToken,
+        tokens: tokens,
         accountInfo,
         accountId,
         setAccountId,
@@ -149,7 +157,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         setDropAccounts: onDropAccountSet,
         beforeMap,
         afterMap,
-        drop: onDrop,
+        drop,
       }}
     >
       <Layout>
