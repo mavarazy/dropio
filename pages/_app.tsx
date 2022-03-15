@@ -12,11 +12,20 @@ import {
   AccountRestoreForm,
 } from "../utils/account-service";
 import { BalanceService } from "../utils/balance-service";
+import {
+  TokenListContainer,
+  TokenListProvider,
+} from "@solana/spl-token-registry";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
 
   const [cluster, setCluster] = useState<Cluster>("devnet");
+
+  const [tokens, setTokens] = useState<TokenListContainer>(
+    new TokenListContainer([])
+  );
+
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -27,6 +36,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
 
   const router = useRouter();
+
+  useEffect(() => {
+    new TokenListProvider().resolve().then((tokens) => {
+      setTokens(tokens);
+    });
+  }, []);
 
   useEffect(() => {
     setBeforeMap({});
@@ -121,6 +136,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       value={{
         cluster,
         setCluster,
+        tokens,
         accountInfo,
         accountId,
         setAccountId,
