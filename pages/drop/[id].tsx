@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import type { NextPage } from "next";
 import DropTable from "../../components/drop-table/drop-table";
 import { SendPanel } from "../../components/send-panel";
@@ -11,9 +11,12 @@ const Drop: NextPage = () => {
   const router = useRouter();
   const { setAccountId } = useGlobalState();
   const { id } = router.query;
-  if (id && !Array.isArray(id)) {
-    setAccountId(id);
-  }
+
+  useEffect(() => {
+    if (id && !Array.isArray(id)) {
+      setAccountId(id);
+    }
+  }, [id]);
 
   return (
     <main className="flex flex-1 flex-col">
