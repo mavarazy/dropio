@@ -3,7 +3,7 @@ import { Cluster } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import {
-  AccountBalance,
+  WalletBallance,
   DropAccount,
   DropMode,
   FakeToken,
@@ -35,8 +35,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [accountId, setAccountId] = useState<string | null>(null);
 
-  const [accountBalance, setAccountBalance] = useState<AccountBalance>({
-    balance: 0,
+  const [wallet, setWallet] = useState<WalletBallance>({
+    id: "test",
+    sol: 0,
     tokens: [],
   });
 
@@ -117,11 +118,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const refreshBalance = async () => {
     if (accountId) {
-      const balance = await BalanceService.getAccountBalance(
-        cluster,
-        accountId
-      );
-      setAccountBalance(balance);
+      const wallet = await BalanceService.getAccountBalance(cluster, accountId);
+      setWallet(wallet);
     }
   };
 
@@ -159,6 +157,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <GlobalContext.Provider
       value={{
+        accountInfo,
+        setWalletId: setAccountId,
+        balance: wallet,
         cluster,
         setCluster,
         mode,
@@ -166,11 +167,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         token,
         setToken,
         tokens: tokens,
-        accountInfo,
-        accountId,
-        setAccountId,
         createAccount,
-        accountBalance,
         refreshBalance,
         dropAccounts,
         restoreAccount,

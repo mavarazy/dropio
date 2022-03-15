@@ -10,7 +10,7 @@ import { TokenAccountPanel } from "../../components/token-account-panel";
 
 const Drop: NextPage = () => {
   const router = useRouter();
-  const { setAccountId } = useGlobalState();
+  const { setWalletId: setAccountId } = useGlobalState();
   const { id } = router.query;
 
   useEffect(() => {

@@ -10,7 +10,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { AccountBalance, DropAccount, TokenAccount } from "../context";
+import { WalletBallance, DropAccount, TokenAccount } from "../context";
 
 const getTokens = async (
   cluster: Cluster,
@@ -36,7 +36,7 @@ const getTokens = async (
   });
 };
 
-const getBalance = async (cluster: Cluster, accountId: string) => {
+const getSolBalance = async (cluster: Cluster, accountId: string) => {
   try {
     const connection = new Connection(clusterApiUrl(cluster), "confirmed");
     const publicKey = new PublicKey(accountId);
@@ -51,14 +51,15 @@ const getBalance = async (cluster: Cluster, accountId: string) => {
   }
 };
 
-const getAccountBalance = async (
+const getWallet = async (
   cluster: Cluster,
   accountId: string
-): Promise<AccountBalance> => {
-  const balance = getBalance(cluster, accountId);
+): Promise<WalletBallance> => {
+  const sol = getSolBalance(cluster, accountId);
   const tokens = getTokens(cluster, accountId);
-  return Promise.all([balance, tokens]).then(([balance, tokens]) => ({
-    balance,
+  return Promise.all([sol, tokens]).then(([sol, tokens]) => ({
+    id: accountId,
+    sol,
     tokens,
   }));
 };
@@ -106,7 +107,7 @@ const dropDev = async (
       LAMPORTS_PER_SOL
     );
     await connection.confirmTransaction(airdropSignature, "confirmed");
-    return getBalance(cluster, account.publicKey.toString());
+    return getSolBalance(cluster, account.publicKey.toString());
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
@@ -114,4 +115,9 @@ const dropDev = async (
   }
 };
 
-export const BalanceService = { getAccountBalance, getBalance, dropDev, drop };
+export const BalanceService = {
+  getAccountBalance: getWallet,
+  getBalance: getSolBalance,
+  dropDev,
+  drop,
+};

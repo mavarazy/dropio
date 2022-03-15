@@ -10,8 +10,9 @@ export interface DropAccount {
 
 export type TokenAccount = Pick<TokenInfo, "address"> & { amount: bigint };
 
-export interface AccountBalance {
-  balance: number;
+export interface WalletBallance {
+  id: string;
+  sol: number;
   tokens: TokenAccount[];
 }
 
@@ -36,11 +37,8 @@ export type GlobalContextType = {
   setToken(token: TokenInfo): void;
   tokens: TokenInfo[];
 
-  accountId: string | null;
-
-  accountBalance: AccountBalance;
-
-  setAccountId(accountId: string): void;
+  balance: WalletBallance;
+  setWalletId(walletId: string): void;
 
   accountInfo: AccountInfo | null;
 
@@ -71,11 +69,11 @@ export const GlobalContext = createContext<GlobalContextType>({
 
   accountInfo: null,
 
-  accountId: null,
-  setAccountId: () => null,
+  setWalletId: () => null,
 
-  accountBalance: {
-    balance: 0,
+  balance: {
+    id: "test",
+    sol: 0,
     tokens: [],
   },
 
@@ -88,6 +86,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   restoreAccount: () => Promise.reject(),
   refreshBalance: () => Promise.reject(),
   createAccount: () => Promise.reject(),
+
   drop: () => Promise.resolve(""),
 
   dropDev: () => Promise.resolve(0),

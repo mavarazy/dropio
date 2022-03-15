@@ -3,9 +3,7 @@ import { useGlobalState } from "../../context";
 import { TokenLogo } from "../token-logo";
 
 export function TokenAccountPanel() {
-  const { tokens, accountBalance } = useGlobalState();
-
-  console.log(accountBalance.tokens);
+  const { tokens, balance } = useGlobalState();
 
   return (
     <>
@@ -13,7 +11,7 @@ export function TokenAccountPanel() {
         role="list"
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {accountBalance.tokens.map((token) => {
+        {balance.tokens.map((token) => {
           const info = tokens.find((t) => t.address === token.address);
 
           return (
