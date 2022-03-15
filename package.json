@@ -17,6 +17,7 @@
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
     "@solana/spl-token": "^0.2.0",
+    "@solana/spl-token-registry": "^0.2.2909",
     "@solana/web3.js": "^1.36.0",
     "bip39": "^3.0.4",
     "copy-to-clipboard": "^3.3.1",

@@ -7,14 +7,17 @@ export const SendPanel = () => {
   const {
     balance,
     accountInfo,
-    network,
+    cluster,
     dropAccounts,
     drop,
     dropDev,
     refreshBalance,
   } = useGlobalState();
 
-  const dropAmount = dropAccounts.reduce((agg, { drop: amount }) => agg + amount, 0);
+  const dropAmount = dropAccounts.reduce(
+    (agg, { drop: amount }) => agg + amount,
+    0
+  );
 
   return (
     <dl className="mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow-lg divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x">
@@ -26,7 +29,7 @@ export const SendPanel = () => {
           </div>
           <div className="flex space-x-1">
             <Button icon={faSync} onClick={refreshBalance} />
-            {network === "devnet" && (
+            {cluster === "devnet" && (
               <Button icon={faDropbox} onClick={dropDev} />
             )}
           </div>

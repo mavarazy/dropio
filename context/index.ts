@@ -8,8 +8,8 @@ export interface DropAccount {
 }
 
 export type GlobalContextType = {
-  network: Cluster;
-  setNetwork: React.Dispatch<React.SetStateAction<Cluster>>;
+  cluster: Cluster;
+  setCluster: React.Dispatch<React.SetStateAction<Cluster>>;
 
   accountId: string | null;
   setAccountId(accountId: string): void;
@@ -31,8 +31,8 @@ export type GlobalContextType = {
 };
 
 export const GlobalContext = createContext<GlobalContextType>({
-  network: "devnet",
-  setNetwork: () => null,
+  cluster: "devnet",
+  setCluster: () => null,
 
   accountInfo: null,
 

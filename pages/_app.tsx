@@ -16,7 +16,7 @@ import { BalanceService } from "../utils/balance-service";
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
 
-  const [network, setNetwork] = useState<Cluster>("devnet");
+  const [cluster, setCluster] = useState<Cluster>("devnet");
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -33,19 +33,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     setAfterMap({});
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(cluster, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
     }, Promise.resolve({}));
-  }, [network]);
+  }, [cluster]);
 
   const onDropAccountSet = (accounts: DropAccount[]) => {
     setDropAccounts(accounts);
 
     accounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(cluster, accountId);
       setBeforeMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -57,7 +57,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       return "";
     }
     const signature = await BalanceService.drop(
-      network,
+      cluster,
       accountInfo.account,
       dropAccounts
     );
@@ -66,7 +66,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(cluster, accountId);
       setAfterMap({ ...balanceMap, [accountId]: balance });
 
       return { ...balanceMap, [accountId]: balance };
@@ -86,7 +86,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const refreshBalance = async () => {
     if (accountId) {
-      const balance = await BalanceService.getBalance(network, accountId);
+      const balance = await BalanceService.getBalance(cluster, accountId);
       setBalance(balance);
       return balance;
     }
@@ -107,7 +107,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   const airdrop = async () => {
     if (accountInfo?.account) {
       const balance = await BalanceService.dropDev(
-        network,
+        cluster,
         accountInfo?.account
       );
       setBalance(balance);
@@ -119,8 +119,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <GlobalContext.Provider
       value={{
-        network,
-        setNetwork,
+        cluster,
+        setCluster,
         accountInfo,
         accountId,
         setAccountId,

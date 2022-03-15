@@ -11,9 +11,9 @@ import {
 } from "@solana/web3.js";
 import { DropAccount } from "../context";
 
-const getBalance = async (network: Cluster, accountId: string) => {
+const getBalance = async (cluster: Cluster, accountId: string) => {
   try {
-    const connection = new Connection(clusterApiUrl(network), "confirmed");
+    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
     const publicKey = new PublicKey(accountId);
     const balance = await connection.getBalance(publicKey);
 
@@ -27,11 +27,11 @@ const getBalance = async (network: Cluster, accountId: string) => {
 };
 
 const drop = async (
-  network: Cluster,
+  cluster: Cluster,
   account: Keypair,
   dropAccounts: DropAccount[]
 ): Promise<string> => {
-  const connection = new Connection(clusterApiUrl(network), "confirmed");
+  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
 
   const transaction = new Transaction();
   dropAccounts.forEach(({ wallet: accountId, drop: amount }) => {
@@ -55,21 +55,21 @@ const drop = async (
 };
 
 const dropDev = async (
-  network: Cluster,
+  cluster: Cluster,
   account: Keypair | null
 ): Promise<number> => {
   // This line ensures the function returns before running if no account has been set
-  if (!account || network !== "devnet") return 0;
+  if (!account || cluster !== "devnet") return 0;
 
   try {
-    const connection = new Connection(clusterApiUrl(network), "confirmed");
+    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
     const publicKey = account.publicKey;
     const airdropSignature = await connection.requestAirdrop(
       publicKey,
       LAMPORTS_PER_SOL
     );
     await connection.confirmTransaction(airdropSignature, "confirmed");
-    return getBalance(network, account.publicKey.toString());
+    return getBalance(cluster, account.publicKey.toString());
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
