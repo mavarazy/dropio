@@ -43,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       {icon && (
         <FontAwesomeIcon
           icon={loading ? faArrowRotateRight : icon}
-          className={text ? "mx-2" : ""}
+          className={classNames(text ? "mx-2" : "", "h-4 w-4")}
           spin={loading}
         />
       )}

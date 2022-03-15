@@ -2,6 +2,7 @@ import { faDropbox } from "@fortawesome/free-brands-svg-icons";
 import { faCashRegister, faSync } from "@fortawesome/pro-light-svg-icons";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
+import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
   const {
@@ -29,9 +30,7 @@ export const SendPanel = () => {
           </div>
           <div className="flex space-x-1">
             <Button icon={faSync} onClick={refreshBalance} />
-            {cluster === "devnet" && (
-              <Button icon={faDropbox} onClick={dropDev} />
-            )}
+            <DebugButton />
           </div>
         </dd>
       </div>

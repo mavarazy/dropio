@@ -13,6 +13,7 @@ import {
 } from "../utils/account-service";
 import { BalanceService } from "../utils/balance-service";
 import { TokenInfo, TokenListProvider } from "@solana/spl-token-registry";
+import { MintService } from "../utils/mint-service";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
@@ -49,6 +50,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     setBeforeMap({});
     setAfterMap({});
+
     dropAccounts.reduce(async (agg, { wallet: accountId }) => {
       const balanceMap = await agg;
       const balance = await BalanceService.getBalance(cluster, accountId);
@@ -135,6 +137,14 @@ function MyApp({ Component, pageProps }: AppProps) {
     return 0;
   };
 
+  const mineDev = async () => {
+    if (accountInfo?.account) {
+      const balance = await MintService.mintDev(cluster, accountInfo?.account);
+      return balance;
+    }
+    return 0;
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -154,6 +164,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         dropAccounts,
         restoreAccount,
         dropDev: airdrop,
+        mineDev,
         setDropAccounts: onDropAccountSet,
         beforeMap,
         afterMap,

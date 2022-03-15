@@ -42,6 +42,7 @@ export type GlobalContextType = {
   afterMap: { [key in string]: number };
 
   dropDev(): Promise<number>;
+  mineDev(): Promise<number>;
   refreshBalance(): Promise<number>;
   restoreAccount(form: AccountRestoreForm): Promise<AccountInfo>;
   createAccount(): Promise<AccountInfo>;
@@ -75,8 +76,10 @@ export const GlobalContext = createContext<GlobalContextType>({
   restoreAccount: () => Promise.reject(),
   refreshBalance: () => Promise.reject(),
   createAccount: () => Promise.reject(),
-  dropDev: () => Promise.resolve(0),
   drop: () => Promise.resolve(""),
+
+  dropDev: () => Promise.resolve(0),
+  mineDev: () => Promise.resolve(0),
 });
 
 export const useGlobalState = () => useContext(GlobalContext);
