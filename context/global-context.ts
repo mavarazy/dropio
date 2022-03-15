@@ -37,8 +37,8 @@ export type GlobalContextType = {
   tokens: TokenInfo[];
 
   accountId: string | null;
-  balance: number;
-  tokenAccounts: Array<{ address: string; amount: number }>;
+
+  accountBalance: AccountBalance;
 
   setAccountId(accountId: string): void;
 
@@ -52,7 +52,7 @@ export type GlobalContextType = {
 
   dropDev(): Promise<number>;
   mineDev(): Promise<number>;
-  refreshBalance(): Promise<number>;
+  refreshBalance(): Promise<void>;
   restoreAccount(form: AccountRestoreForm): Promise<AccountInfo>;
   createAccount(): Promise<AccountInfo>;
   drop(): Promise<string>;
@@ -74,8 +74,10 @@ export const GlobalContext = createContext<GlobalContextType>({
   accountId: null,
   setAccountId: () => null,
 
-  balance: 0,
-  tokenAccounts: [],
+  accountBalance: {
+    balance: 0,
+    tokens: [],
+  },
 
   dropAccounts: [],
   setDropAccounts: () => null,

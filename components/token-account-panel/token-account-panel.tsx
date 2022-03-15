@@ -1,8 +1,11 @@
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { TokenLogo } from "../token-logo";
 
 export function TokenAccountPanel() {
-  const { tokens, tokenAccounts } = useGlobalState();
+  const { tokens, accountBalance } = useGlobalState();
+
+  console.log(accountBalance.tokens);
 
   return (
     <>
@@ -10,7 +13,7 @@ export function TokenAccountPanel() {
         role="list"
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {tokenAccounts.map((token) => {
+        {accountBalance.tokens.map((token) => {
           const info = tokens.find((t) => t.address === token.address);
 
           return (
@@ -26,7 +29,7 @@ export function TokenAccountPanel() {
                     </h3>
                   </div>
                   <p className="font-semibold text-indigo-600 text-2xl truncate">
-                    {token.amount}
+                    {Number(token.amount) / LAMPORTS_PER_SOL}
                   </p>
                 </div>
                 <TokenLogo

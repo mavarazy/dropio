@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Cluster } from "@solana/web3.js";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { DropAccount, DropMode, FakeToken, GlobalContext } from "../context";
+import {
+  AccountBalance,
+  DropAccount,
+  DropMode,
+  FakeToken,
+  GlobalContext,
+} from "../context";
 import { Layout } from "../components/layout";
 import { Notification, NotificationProps } from "../components/notification";
 import { useRouter } from "next/router";
@@ -29,10 +35,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [accountId, setAccountId] = useState<string | null>(null);
 
-  const [balance, setBalance] = useState<number>(0);
-  const [tokenAccounts, setTokenAccounts] = useState<
-    Array<{ address: string; amount: number }>
-  >([]);
+  const [accountBalance, setAccountBalance] = useState<AccountBalance>({
+    balance: 0,
+    tokens: [],
+  });
+
   const [dropAccounts, setDropAccounts] = useState<DropAccount[]>([]);
   const [beforeMap, setBeforeMap] = useState<{ [key in string]: number }>({});
   const [afterMap, setAfterMap] = useState<{ [key in string]: number }>({});
@@ -110,11 +117,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const refreshBalance = async () => {
     if (accountId) {
-      const balance = await BalanceService.getBalance(cluster, accountId);
-      setBalance(balance);
-      return balance;
+      const balance = await BalanceService.getAccountBalance(
+        cluster,
+        accountId
+      );
+      setAccountBalance(balance);
     }
-    return 0;
   };
 
   const restoreAccount = async (form: AccountRestoreForm) => {
@@ -134,7 +142,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         cluster,
         accountInfo?.account
       );
-      setBalance(balance);
+      refreshBalance();
       return balance;
     }
     return 0;
@@ -162,8 +170,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         accountId,
         setAccountId,
         createAccount,
-        balance,
-        tokenAccounts,
+        accountBalance,
         refreshBalance,
         dropAccounts,
         restoreAccount,
