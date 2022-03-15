@@ -5,9 +5,9 @@ import { useGlobalState } from "../../context";
 import { TokenLogo } from "../token-logo";
 
 export const TokenPicker = () => {
-  const { mode, tokens, token, setToken } = useGlobalState();
+  const { mode, tokens, tokenAddress, setTokenAddress } = useGlobalState();
 
-  console.log(token.address);
+  const tokenInfo = tokens.find((t) => t.address === tokenAddress);
 
   if (mode !== "Token") {
     return null;
@@ -15,16 +15,16 @@ export const TokenPicker = () => {
 
   return (
     <div className="w-96 mx-2">
-      <Combobox value={token} onChange={setToken}>
+      <Combobox value={tokenAddress} onChange={setTokenAddress}>
         <div className="relative mt-1">
           <div className="relative w-full flex text-left bg-white rounded-lg shadow-md cursor-default sm:text-sm overflow-hidden">
             <TokenLogo
-              logoURI={token.logoURI}
+              logoURI={tokenInfo?.logoURI}
               className="p-1 rounded-full"
               size={42}
             />
             <span className="flex items-center w-full border-none focus:ring-0 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900">
-              {token.name}
+              {tokenInfo?.name ?? tokenAddress}
             </span>
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
               <SelectorIcon
@@ -48,7 +48,7 @@ export const TokenPicker = () => {
                       active ? "text-white bg-teal-600" : "text-gray-900"
                     }`
                   }
-                  value={token}
+                  value={token.address}
                 >
                   {({ selected, active }) => (
                     <>

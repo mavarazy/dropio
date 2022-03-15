@@ -27,11 +27,10 @@ const getTokens = async (
 
   return tokenAccounts.value.map((accountBuffer) => {
     const accountInfo = AccountLayout.decode(accountBuffer.account.data);
-    console.log(accountInfo);
 
     return {
       address: accountInfo.mint.toString(),
-      amount: accountInfo.amount,
+      amount: Number(accountInfo.amount),
     };
   });
 };

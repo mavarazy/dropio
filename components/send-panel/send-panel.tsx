@@ -4,8 +4,21 @@ import { Button } from "../button";
 import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
-  const { balance, accountInfo, dropAccounts, drop, refreshBalance } =
-    useGlobalState();
+  const {
+    balance,
+    mode,
+    tokenAddress,
+    accountInfo,
+    dropAccounts,
+    drop,
+    refreshBalance,
+  } = useGlobalState();
+
+  const availableAmount =
+    mode === "SOL"
+      ? balance.sol
+      : balance.tokens.find((token) => token.address === tokenAddress)
+          ?.amount ?? 0;
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
@@ -38,15 +51,15 @@ export const SendPanel = () => {
       <div className="px-4 py-5 sm:p-6">
         <dt className="text-base font-normal text-gray-900">Send</dt>
         <dd className="mt-1 flex items-baseline md:block lg:flex">
-          {balance.sol > dropAmount && dropAmount > 0 && accountInfo ? (
+          {availableAmount > dropAmount && dropAmount > 0 && accountInfo ? (
             <Button icon={faCashRegister} text="Send" onClick={drop} />
           ) : (
             <div className="flex items-baseline text-2xl font-semibold">
               {dropAmount === 0 ? (
                 <span className="text-green-600">All good</span>
-              ) : dropAmount > balance.sol ? (
+              ) : dropAmount > availableAmount ? (
                 <span className="text-red-600">
-                  {(dropAmount - balance.sol).toPrecision(5)}
+                  {(dropAmount - availableAmount).toPrecision(5)}
                 </span>
               ) : (
                 <span className="text-red-600">Need your mnemonic</span>

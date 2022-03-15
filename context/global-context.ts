@@ -8,7 +8,7 @@ export interface DropAccount {
   drop: number;
 }
 
-export type TokenAccount = Pick<TokenInfo, "address"> & { amount: bigint };
+export type TokenAccount = Pick<TokenInfo, "address"> & { amount: number };
 
 export interface WalletBallance {
   id: string;
@@ -33,8 +33,8 @@ export type GlobalContextType = {
   mode: DropMode;
   setMode(mode: DropMode): void;
 
-  token: TokenInfo;
-  setToken(token: TokenInfo): void;
+  tokenAddress: string;
+  setTokenAddress(token: string): void;
   tokens: TokenInfo[];
 
   balance: WalletBallance;
@@ -62,20 +62,20 @@ export const GlobalContext = createContext<GlobalContextType>({
 
   mode: "SOL",
   setMode: () => null,
-  setToken: () => null,
 
-  token: FakeToken,
+  tokenAddress: "stest",
+  setTokenAddress: () => null,
+
   tokens: [FakeToken],
 
   accountInfo: null,
-
-  setWalletId: () => null,
 
   balance: {
     id: "test",
     sol: 0,
     tokens: [],
   },
+  setWalletId: () => null,
 
   dropAccounts: [],
   setDropAccounts: () => null,

@@ -28,7 +28,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const [mode, setMode] = useState<DropMode>("SOL");
 
-  const [token, setToken] = useState<TokenInfo>(FakeToken);
+  const [tokenAddress, setTokenAddress] = useState<string>("Token");
+
   const [tokens, setTokens] = useState<TokenInfo[]>([FakeToken]);
 
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
@@ -54,7 +55,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       const clusterTokens = tokens.filterByClusterSlug(cluster).getList();
       clusterTokens.sort((a, b) => a.name.localeCompare(b.name));
       if (clusterTokens.length > 0) {
-        setToken(clusterTokens[0]);
+        setTokenAddress(clusterTokens[0].address);
         setTokens(clusterTokens);
       }
     });
@@ -164,8 +165,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         setCluster,
         mode,
         setMode,
-        token,
-        setToken,
+        tokenAddress,
+        setTokenAddress,
         tokens: tokens,
         createAccount,
         refreshBalance,
