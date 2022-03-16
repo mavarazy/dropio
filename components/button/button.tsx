@@ -1,12 +1,14 @@
-import { faArrowRotateRight } from "@fortawesome/pro-light-svg-icons";
-import { IconDefinition } from "@fortawesome/pro-solid-svg-icons";
+import {
+  faArrowRotateRight,
+  IconLookup,
+} from "@fortawesome/pro-light-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { classNames } from "../../utils/class-names";
 
 interface ButtonProps {
   text?: string;
-  icon?: IconDefinition;
+  icon?: IconLookup;
   children?: JSX.Element;
   onClick(): Promise<any>;
 }
