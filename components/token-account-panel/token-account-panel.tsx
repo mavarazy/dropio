@@ -4,8 +4,11 @@ import { classNames } from "../../utils/class-names";
 import { TokenLogo } from "../token-logo";
 
 export function TokenAccountPanel() {
-  const { tokens, mode, tokenAddress, setTokenAddress, balance } =
-    useGlobalState();
+  const {
+    tokens,
+    state: { mode, tokenAddress, balance },
+    setTokenAddress,
+  } = useGlobalState();
 
   return (
     <>

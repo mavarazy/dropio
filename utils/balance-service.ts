@@ -21,6 +21,7 @@ import {
   DropAccount,
   TokenAccount,
   DropMode,
+  DropAccountBalance,
 } from "../context";
 
 const getTokens = async (
@@ -61,6 +62,35 @@ const getSolBalance = async (cluster: Cluster, accountId: string) => {
   }
 };
 
+const getTokenBalance = async (
+  cluster: Cluster,
+  account: Keypair,
+  wallet: string,
+  tokenAddress: string
+): Promise<{ address: string; amount: number }> => {
+  try {
+    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+    const mint = new PublicKey(tokenAddress);
+
+    const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      account,
+      mint,
+      new PublicKey(wallet)
+    );
+
+    return {
+      address: toTokenAccount.address.toString(),
+      amount: Number(toTokenAccount.amount),
+    };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown Error";
+
+    throw new Error(`Balance refresh failed: ${errorMessage}`);
+  }
+};
+
 const getWalletBalance = async (
   cluster: Cluster,
   accountId: string
@@ -72,6 +102,26 @@ const getWalletBalance = async (
     sol,
     tokens,
   }));
+};
+
+const getDropAccountBalance = async (
+  cluster: Cluster,
+  dropAccount: DropAccount,
+  account: Keypair,
+  mode: DropMode,
+  tokenAddress: string
+): Promise<DropAccountBalance> => {
+  const balance = await (mode === "SOL"
+    ? getSolBalance(cluster, dropAccount.wallet).then((amount) => ({
+        address: dropAccount.wallet,
+        amount,
+      }))
+    : getTokenBalance(cluster, account, dropAccount.wallet, tokenAddress));
+
+  return {
+    ...dropAccount,
+    ...balance,
+  };
 };
 
 const dropSol = async (
@@ -194,6 +244,7 @@ const dropDev = async (
 
 export const BalanceService = {
   getWalletBalance,
+  getDropAccountBalance,
   dropDev,
   drop,
 };

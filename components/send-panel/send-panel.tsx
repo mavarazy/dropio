@@ -5,11 +5,8 @@ import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
   const {
-    balance,
-    mode,
-    tokenAddress,
+    state: { balance, mode, tokenAddress, dropAccounts },
     accountInfo,
-    dropAccounts,
     drop,
     refreshBalance,
   } = useGlobalState();
@@ -34,7 +31,7 @@ export const SendPanel = () => {
             {balance.sol}
           </div>
           <div className="flex space-x-1">
-            <Button icon={faSync} onClick={refreshBalance} />
+            <Button icon={faSync} onClick={() => refreshBalance()} />
             <DebugButton />
           </div>
         </dd>

@@ -15,7 +15,10 @@ const Modes: Array<{
 ];
 
 export function StackingPicker() {
-  const { mode, setMode } = useGlobalState();
+  const {
+    state: { mode },
+    setMode,
+  } = useGlobalState();
 
   return (
     <RadioGroup value={mode} onChange={setMode} className="mt-2">

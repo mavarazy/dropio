@@ -8,6 +8,21 @@ export interface DropAccount {
   drop: number;
 }
 
+export interface DropAccountBalance {
+  wallet: string;
+  drop: number;
+  address: string;
+  amount: number;
+}
+
+export interface PopulatedDropAccount {
+  wallet: string;
+  drop: number;
+  address?: string;
+  before?: number;
+  after?: number;
+}
+
 export type TokenAccount = Pick<TokenInfo, "address"> & { amount: number };
 
 export interface WalletBallance {
@@ -26,27 +41,28 @@ export const FakeToken: TokenInfo = {
   symbol: "LOADING",
 };
 
-export type GlobalContextType = {
+export interface AppState {
   cluster: Cluster;
-  setCluster: React.Dispatch<React.SetStateAction<Cluster>>;
-
   mode: DropMode;
-  setMode(mode: DropMode): void;
-
   tokenAddress: string;
+  balance: WalletBallance;
+  dropAccounts: DropAccount[];
+  dropPopulatedAccounts: PopulatedDropAccount[];
+}
+
+export type GlobalContextType = {
+  state: AppState;
+
+  setCluster(cluster: Cluster): void;
+  setMode(mode: DropMode): void;
   setTokenAddress(token: string): void;
+  setDropAccounts: (accounts: DropAccount[]) => void;
+
   tokens: TokenInfo[];
 
-  balance: WalletBallance;
   setWalletId(walletId: string): void;
 
   accountInfo: AccountInfo | null;
-
-  dropAccounts: DropAccount[];
-  setDropAccounts: (accounts: DropAccount[]) => void;
-
-  beforeMap: { [key in string]: WalletBallance };
-  afterMap: { [key in string]: WalletBallance };
 
   dropDev(): Promise<number>;
   mineDev(): Promise<void>;
@@ -57,31 +73,28 @@ export type GlobalContextType = {
 };
 
 export const GlobalContext = createContext<GlobalContextType>({
-  cluster: "devnet",
+  state: {
+    cluster: "devnet",
+    mode: "SOL",
+    balance: {
+      id: "test",
+      sol: 0,
+      tokens: [],
+    },
+    dropAccounts: [],
+    dropPopulatedAccounts: [],
+    tokenAddress: "",
+  },
+
   setCluster: () => null,
-
-  mode: "SOL",
   setMode: () => null,
-
-  tokenAddress: "stest",
   setTokenAddress: () => null,
+  setDropAccounts: () => null,
 
   tokens: [FakeToken],
 
   accountInfo: null,
-
-  balance: {
-    id: "test",
-    sol: 0,
-    tokens: [],
-  },
   setWalletId: () => null,
-
-  dropAccounts: [],
-  setDropAccounts: () => null,
-
-  beforeMap: {},
-  afterMap: {},
 
   restoreAccount: () => Promise.reject(),
   refreshBalance: () => Promise.reject(),

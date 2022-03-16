@@ -1,39 +1,12 @@
 import { FileInput } from "./file-input";
 import Papa from "papaparse";
-import {
-  DropAccount,
-  DropMode,
-  useGlobalState,
-  WalletBallance,
-} from "../../context";
-import { useCallback } from "react";
+import { DropAccount, useGlobalState } from "../../context";
 
 export default function DropTable() {
   const {
-    beforeMap,
-    afterMap,
-    dropAccounts,
+    state: { dropPopulatedAccounts },
     setDropAccounts,
-    mode,
-    tokenAddress,
   } = useGlobalState();
-
-  const getBallanceFor = useCallback(
-    (
-      accountId: string,
-      balanceMap: { [key in string]: WalletBallance }
-    ): number => {
-      if (mode === "SOL") {
-        return balanceMap[accountId]?.sol ?? 0;
-      }
-      return (
-        balanceMap[accountId]?.tokens.find(
-          (token) => token.address === tokenAddress
-        )?.amount ?? 0
-      );
-    },
-    [mode, tokenAddress]
-  );
 
   const handleImport = async (files: FileList) => {
     const file = files.item(0);
@@ -89,19 +62,23 @@ export default function DropTable() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {dropAccounts.map((account) => (
+                  {dropPopulatedAccounts.map((account) => (
                     <tr key={account.wallet}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {account.wallet}
+                        <br />
+                        <span className="text-xs text-gray-400">
+                          {account.address}&nbsp;
+                        </span>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
                         {account.drop}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
-                        {getBallanceFor(account.wallet, beforeMap)}
+                        {account.before}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
-                        {getBallanceFor(account.wallet, afterMap)}
+                        {account.after}
                       </td>
                     </tr>
                   ))}

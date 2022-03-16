@@ -9,7 +9,10 @@ import Link from "next/link";
 const navs: Array<{ name: string; link: string }> = [];
 
 export function Navigation() {
-  const { cluster, setCluster } = useGlobalState();
+  const {
+    state: { cluster },
+    setCluster,
+  } = useGlobalState();
 
   return (
     <Disclosure as="nav" className="bg-white shadow">

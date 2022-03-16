@@ -3,7 +3,11 @@ import { useGlobalState } from "../../context";
 import { Button } from "../button";
 
 export const DebugButton = () => {
-  const { cluster, mode, dropDev, mineDev } = useGlobalState();
+  const {
+    state: { cluster, mode },
+    dropDev,
+    mineDev,
+  } = useGlobalState();
 
   if (cluster !== "devnet") {
     return null;
