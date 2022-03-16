@@ -39,7 +39,7 @@ const mintDev = async (cluster: Cluster, account: Keypair) => {
     mint,
     tokenAccount.address,
     mintAuthority,
-    LAMPORTS_PER_SOL
+    100 * LAMPORTS_PER_SOL
   );
 
   return LAMPORTS_PER_SOL;

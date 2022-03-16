@@ -22,6 +22,7 @@ import {
   TokenAccount,
   DropMode,
   DropAccountBalance,
+  PopulatedDropAccount,
 } from "../context";
 
 const getTokens = async (
@@ -81,7 +82,7 @@ const getTokenBalance = async (
 
     return {
       address: toTokenAccount.address.toString(),
-      amount: Number(toTokenAccount.amount),
+      amount: Number(toTokenAccount.amount) / LAMPORTS_PER_SOL,
     };
   } catch (error) {
     const errorMessage =
@@ -154,9 +155,9 @@ const dropSol = async (
 
 const dropTokkens = async (
   cluster: Cluster,
-  account: Keypair,
+  wallet: Keypair,
   tokenAddress: string,
-  dropAccounts: DropAccount[]
+  accounts: PopulatedDropAccount[]
 ) => {
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
   const mint = new PublicKey(tokenAddress);
@@ -164,30 +165,55 @@ const dropTokkens = async (
   const mintAccount = await getMint(connection, mint);
 
   const transaction = new Transaction({
-    feePayer: account.publicKey,
+    feePayer: wallet.publicKey,
   });
+
+  const tokenDropAccounts: DropAccountBalance[] = await accounts.reduce(
+    (agg: Promise<DropAccountBalance[]>, account: PopulatedDropAccount) => {
+      return agg.then(async (accounts: DropAccountBalance[]) => {
+        if (account.address) {
+          const dropTokenAccount: DropAccountBalance = {
+            ...account,
+            address: account.address,
+            amount: account.drop,
+          };
+          return accounts.concat(dropTokenAccount);
+        } else {
+          const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+            connection,
+            wallet,
+            new PublicKey(tokenAddress),
+            new PublicKey(account.wallet)
+          );
+
+          const dropTokenAccount: DropAccountBalance = {
+            ...account,
+            address: toTokenAccount.address.toString(),
+            amount: account.drop,
+          };
+
+          return accounts.concat(dropTokenAccount);
+        }
+      });
+    },
+    Promise.resolve([])
+  );
 
   const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
-    account,
+    wallet,
     mint,
-    account.publicKey
+    wallet.publicKey
   );
 
-  await dropAccounts.reduce((agg, dropAccount) => {
+  await tokenDropAccounts.reduce((agg, tokenDropAccount) => {
     return agg.then(async () => {
-      const toTokenAccount = await getOrCreateAssociatedTokenAccount(
-        connection,
-        account,
-        new PublicKey(tokenAddress),
-        new PublicKey(dropAccount.wallet)
-      );
       const transferInstruction = createTransferCheckedInstruction(
         fromTokenAccount.address,
         mint,
-        toTokenAccount.address,
-        account.publicKey,
-        dropAccount.drop * Math.pow(10, mintAccount.decimals),
+        new PublicKey(tokenDropAccount.address),
+        wallet.publicKey,
+        tokenDropAccount.drop * Math.pow(10, mintAccount.decimals),
         mintAccount.decimals
       );
       transaction.add(transferInstruction);
@@ -197,8 +223,8 @@ const dropTokkens = async (
 
   const signers = [
     {
-      publicKey: account.publicKey,
-      secretKey: account.secretKey,
+      publicKey: wallet.publicKey,
+      secretKey: wallet.secretKey,
     },
   ];
 
@@ -208,7 +234,7 @@ const dropTokkens = async (
 const drop = async (
   cluster: Cluster,
   account: Keypair,
-  dropAccounts: DropAccount[],
+  dropAccounts: PopulatedDropAccount[],
   mode: DropMode,
   tokenAddress: string
 ): Promise<string> => {

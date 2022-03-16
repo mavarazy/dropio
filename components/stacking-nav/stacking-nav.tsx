@@ -45,7 +45,7 @@ export function StackingPicker() {
           </RadioGroup.Option>
         ))}
         <div className="col-span-2 flex items-center justify-center">
-          <TokenPicker />
+          {mode === "Token" && <TokenPicker />}
         </div>
       </div>
     </RadioGroup>

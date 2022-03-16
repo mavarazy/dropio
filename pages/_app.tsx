@@ -102,7 +102,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         dropPopulatedAccounts: state.dropPopulatedAccounts.map((drop) =>
           drop.wallet === action.payload.wallet
-            ? { ...action.payload, after: action.payload.amount }
+            ? { ...drop, after: action.payload.amount }
             : drop
         ),
       };
@@ -207,7 +207,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     const signature = await BalanceService.drop(
       state.cluster,
       accountInfo.account,
-      state.dropAccounts,
+      state.dropPopulatedAccounts,
       state.mode,
       state.tokenAddress
     );
