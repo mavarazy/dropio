@@ -1,17 +1,68 @@
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/outline";
-import React, { Fragment } from "react";
+import React, { Fragment, useCallback } from "react";
 import { useGlobalState } from "../../context";
 import { TokenLogo } from "../token-logo";
+import { List, ListRowProps } from "react-virtualized";
 
 export const TokenPicker = () => {
   const { mode, tokens, tokenAddress, setTokenAddress } = useGlobalState();
 
   const tokenInfo = tokens.find((t) => t.address === tokenAddress);
 
-  if (mode !== "Token") {
-    return null;
-  }
+  const renderItem = useCallback(
+    (props: ListRowProps) => {
+      const token = tokens[props.index];
+      return (
+        <Combobox.Option
+          key={token.address}
+          className={({ active }) =>
+            `cursor-default select-none relative py-2 pl-10 pr-4 ${
+              active ? "text-white bg-teal-600" : "text-gray-900"
+            }`
+          }
+          style={props.style}
+          value={token.address}
+        >
+          {({ selected, active }) => (
+            <>
+              <span
+                className={`block truncate ${
+                  selected ? "font-medium" : "font-normal"
+                }`}
+              >
+                {token.name}
+              </span>
+              {selected ? (
+                <span
+                  className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                    active ? "text-white" : "text-teal-600"
+                  }`}
+                >
+                  <CheckIcon className="w-5 h-5" aria-hidden="true" />
+                </span>
+              ) : (
+                <span
+                  className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                    active ? "text-white" : "text-teal-600"
+                  }`}
+                >
+                  {token.logoURI && (
+                    <TokenLogo
+                      logoURI={token.logoURI}
+                      size={20}
+                      className="rounded-full max-w-5 max-h-5"
+                    />
+                  )}
+                </span>
+              )}
+            </>
+          )}
+        </Combobox.Option>
+      );
+    },
+    [tokens]
+  );
 
   return (
     <div className="w-96 mx-2">
@@ -40,52 +91,13 @@ export const TokenPicker = () => {
             leaveTo="opacity-0"
           >
             <Combobox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {tokens.map((token) => (
-                <Combobox.Option
-                  key={token.address}
-                  className={({ active }) =>
-                    `cursor-default select-none relative py-2 pl-10 pr-4 ${
-                      active ? "text-white bg-teal-600" : "text-gray-900"
-                    }`
-                  }
-                  value={token.address}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span
-                        className={`block truncate ${
-                          selected ? "font-medium" : "font-normal"
-                        }`}
-                      >
-                        {token.name}
-                      </span>
-                      {selected ? (
-                        <span
-                          className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-                            active ? "text-white" : "text-teal-600"
-                          }`}
-                        >
-                          <CheckIcon className="w-5 h-5" aria-hidden="true" />
-                        </span>
-                      ) : (
-                        <span
-                          className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-                            active ? "text-white" : "text-teal-600"
-                          }`}
-                        >
-                          {token.logoURI && (
-                            <TokenLogo
-                              logoURI={token.logoURI}
-                              size={20}
-                              className="rounded-full max-w-5 max-h-5"
-                            />
-                          )}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </Combobox.Option>
-              ))}
+              <List
+                height={360}
+                rowCount={tokens.length}
+                rowRenderer={renderItem}
+                rowHeight={36}
+                width={384}
+              />
             </Combobox.Options>
           </Transition>
         </div>

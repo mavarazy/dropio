@@ -18,8 +18,6 @@ const mintDev = async (cluster: Cluster, account: Keypair) => {
 
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
 
-  console.log("Creating mint");
-
   const mint = await createMint(
     connection,
     payer,
@@ -28,16 +26,12 @@ const mintDev = async (cluster: Cluster, account: Keypair) => {
     9
   );
 
-  console.log("Creating token Account");
-
   const tokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
     payer,
     mint,
     payer.publicKey
   );
-
-  console.log("Minting to Token Account");
 
   await mintTo(
     connection,
@@ -47,7 +41,6 @@ const mintDev = async (cluster: Cluster, account: Keypair) => {
     mintAuthority,
     LAMPORTS_PER_SOL
   );
-  console.log(mint.toBase58());
 
   return LAMPORTS_PER_SOL;
 };

@@ -173,8 +173,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     setWallet(balance);
   };
 
-  console.log("Rendering");
-
   return (
     <GlobalContext.Provider
       value={{
