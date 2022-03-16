@@ -2,7 +2,6 @@ import { RadioGroup } from "@headlessui/react";
 import Image from "next/image";
 import { classNames } from "../../utils/class-names";
 import SolImg from "./images/sol.svg";
-import NFTImg from "./images/nft.svg";
 import TokenImg from "./images/token.png";
 import { DropMode, useGlobalState } from "../../context";
 import { TokenPicker } from "./token-picker";
@@ -13,7 +12,6 @@ const Modes: Array<{
 }> = [
   { mode: "SOL", image: SolImg },
   { mode: "Token", image: TokenImg },
-  { mode: "NFT", image: NFTImg },
 ];
 
 export function StackingPicker() {
@@ -21,7 +19,7 @@ export function StackingPicker() {
 
   return (
     <RadioGroup value={mode} onChange={setMode} className="mt-2">
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {Modes.map(({ mode, image }) => (
           <RadioGroup.Option
             key={mode}

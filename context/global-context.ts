@@ -16,7 +16,7 @@ export interface WalletBallance {
   tokens: TokenAccount[];
 }
 
-export type DropMode = "SOL" | "NFT" | "Token";
+export type DropMode = "SOL" | "Token";
 
 export const FakeToken: TokenInfo = {
   address: "Test",

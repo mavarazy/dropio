@@ -1,6 +1,7 @@
 import {
   AccountLayout,
   createTransferCheckedInstruction,
+  getMint,
   getOrCreateAssociatedTokenAccount,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
@@ -110,6 +111,8 @@ const dropTokkens = async (
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
   const mint = new PublicKey(tokenAddress);
 
+  const mintAccount = await getMint(connection, mint);
+
   const transaction = new Transaction({
     feePayer: account.publicKey,
   });
@@ -134,8 +137,8 @@ const dropTokkens = async (
         mint,
         toTokenAccount.address,
         account.publicKey,
-        dropAccount.drop * LAMPORTS_PER_SOL,
-        9
+        dropAccount.drop * Math.pow(10, mintAccount.decimals),
+        mintAccount.decimals
       );
       transaction.add(transferInstruction);
       return true;

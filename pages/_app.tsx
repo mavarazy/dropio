@@ -23,21 +23,15 @@ import { MintService } from "../utils/mint-service";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const notificationRef = useRef<NotificationProps>(null);
-
   const [cluster, setCluster] = useState<Cluster>("devnet");
-
   const [mode, setMode] = useState<DropMode>("SOL");
 
   const [tokenAddress, setTokenAddress] = useState<string>("Token");
-
   const [tokens, setTokens] = useState<TokenInfo[]>([FakeToken]);
-
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
-  const [accountId, setAccountId] = useState<string | null>(null);
-
   const [wallet, setWallet] = useState<WalletBallance>({
-    id: "test",
+    id: "...loading...",
     sol: 0,
     tokens: [],
   });
@@ -56,7 +50,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     tokenCatalogue.then((tokens) => {
-      const clusterTokens = tokens.filterByClusterSlug(cluster).getList();
+      const clusterTokens = tokens
+        .filterByClusterSlug(cluster)
+        .getList()
+        .filter((token) => token.decimals > 0);
+
       clusterTokens.sort((a, b) => a.name.localeCompare(b.name));
       if (clusterTokens.length > 0) {
         setTokenAddress(clusterTokens[0].address);
@@ -67,24 +65,24 @@ function MyApp({ Component, pageProps }: AppProps) {
     setBeforeMap({});
     setAfterMap({});
 
-    dropAccounts.reduce(async (agg, { wallet: accountId }) => {
+    dropAccounts.reduce(async (agg, { wallet }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getWalletBalance(cluster, accountId);
-      setBeforeMap({ ...balanceMap, [accountId]: balance });
+      const balance = await BalanceService.getWalletBalance(cluster, wallet);
+      setBeforeMap({ ...balanceMap, [wallet]: balance });
 
-      return { ...balanceMap, [accountId]: balance };
+      return { ...balanceMap, [wallet]: balance };
     }, Promise.resolve({}));
   }, [cluster]);
 
   const onDropAccountSet = (accounts: DropAccount[]) => {
     setDropAccounts(accounts);
 
-    accounts.reduce(async (agg, { wallet: accountId }) => {
+    accounts.reduce(async (agg, { wallet }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getWalletBalance(cluster, accountId);
-      setBeforeMap({ ...balanceMap, [accountId]: balance });
+      const balance = await BalanceService.getWalletBalance(cluster, wallet);
+      setBeforeMap({ ...balanceMap, [wallet]: balance });
 
-      return { ...balanceMap, [accountId]: balance };
+      return { ...balanceMap, [wallet]: balance };
     }, Promise.resolve({}));
   };
 
@@ -103,12 +101,12 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     refreshBalance();
 
-    dropAccounts.reduce(async (agg, { wallet: accountId }) => {
+    dropAccounts.reduce(async (agg, { wallet }) => {
       const balanceMap = await agg;
-      const balance = await BalanceService.getWalletBalance(cluster, accountId);
-      setAfterMap({ ...balanceMap, [accountId]: balance });
+      const balance = await BalanceService.getWalletBalance(cluster, wallet);
+      setAfterMap({ ...balanceMap, [wallet]: balance });
 
-      return { ...balanceMap, [accountId]: balance };
+      return { ...balanceMap, [wallet]: balance };
     }, Promise.resolve({}));
     return signature;
   };
@@ -117,16 +115,20 @@ function MyApp({ Component, pageProps }: AppProps) {
     const accountInfo = await AccountService.create();
 
     setAccountInfo(accountInfo);
-    setAccountId(accountId);
+    setWallet({
+      id: wallet.id,
+      sol: 0,
+      tokens: [],
+    });
 
     router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
     return accountInfo;
   };
 
   const refreshBalance = async () => {
-    if (accountId) {
-      const wallet = await BalanceService.getWalletBalance(cluster, accountId);
-      setWallet(wallet);
+    if (wallet.id) {
+      const balance = await BalanceService.getWalletBalance(cluster, wallet.id);
+      setWallet(balance);
     }
   };
 
@@ -161,11 +163,23 @@ function MyApp({ Component, pageProps }: AppProps) {
     return 0;
   };
 
+  const doSetWalletId = async (accountId: string) => {
+    setWallet({
+      id: accountId,
+      sol: 0,
+      tokens: [],
+    });
+    const balance = await BalanceService.getWalletBalance(cluster, accountId);
+    setWallet(balance);
+  };
+
+  console.log("Rendering");
+
   return (
     <GlobalContext.Provider
       value={{
         accountInfo,
-        setWalletId: setAccountId,
+        setWalletId: doSetWalletId,
         balance: wallet,
         cluster,
         setCluster,

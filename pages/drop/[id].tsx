@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import type { NextPage } from "next";
 import DropTable from "../../components/drop-table/drop-table";
 import { SendPanel } from "../../components/send-panel";
@@ -10,12 +10,12 @@ import { TokenAccountPanel } from "../../components/token-account-panel";
 
 const Drop: NextPage = () => {
   const router = useRouter();
-  const { setWalletId: setAccountId } = useGlobalState();
+  const { setWalletId } = useGlobalState();
   const { id } = router.query;
 
   useEffect(() => {
     if (id && !Array.isArray(id)) {
-      setAccountId(id);
+      setWalletId(id);
     }
   }, [id]);
 
