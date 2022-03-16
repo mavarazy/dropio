@@ -96,7 +96,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     const signature = await BalanceService.drop(
       cluster,
       accountInfo.account,
-      dropAccounts
+      dropAccounts,
+      mode,
+      tokenAddress
     );
 
     refreshBalance();

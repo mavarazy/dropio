@@ -10,8 +10,10 @@ export const TokenLogo = ({
     width={width}
     height={width}
     onError={({ currentTarget }) => {
-      currentTarget.onerror = null;
-      currentTarget.src = "/default-token-logo.svg";
+      if (currentTarget.src !== "/default-token-logo.svg") {
+        currentTarget.onerror = null;
+        currentTarget.src = "/default-token-logo.svg";
+      }
     }}
     className={className}
   />

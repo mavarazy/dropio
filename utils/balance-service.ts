@@ -1,4 +1,9 @@
-import { AccountLayout, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import {
+  AccountLayout,
+  createTransferCheckedInstruction,
+  getOrCreateAssociatedTokenAccount,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import {
   Cluster,
   clusterApiUrl,
@@ -10,7 +15,12 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { WalletBallance, DropAccount, TokenAccount } from "../context";
+import {
+  WalletBallance,
+  DropAccount,
+  TokenAccount,
+  DropMode,
+} from "../context";
 
 const getTokens = async (
   cluster: Cluster,
@@ -63,11 +73,11 @@ const getWalletBalance = async (
   }));
 };
 
-const drop = async (
+const dropSol = async (
   cluster: Cluster,
   account: Keypair,
   dropAccounts: DropAccount[]
-): Promise<string> => {
+) => {
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
 
   const transaction = new Transaction();
@@ -89,6 +99,71 @@ const drop = async (
   ];
 
   return await sendAndConfirmTransaction(connection, transaction, signers);
+};
+
+const dropTokkens = async (
+  cluster: Cluster,
+  account: Keypair,
+  tokenAddress: string,
+  dropAccounts: DropAccount[]
+) => {
+  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+  const mint = new PublicKey(tokenAddress);
+
+  const transaction = new Transaction({
+    feePayer: account.publicKey,
+  });
+
+  const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+    connection,
+    account,
+    mint,
+    account.publicKey
+  );
+
+  await dropAccounts.reduce((agg, dropAccount) => {
+    return agg.then(async () => {
+      const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+        connection,
+        account,
+        new PublicKey(tokenAddress),
+        new PublicKey(dropAccount.wallet)
+      );
+      const transferInstruction = createTransferCheckedInstruction(
+        fromTokenAccount.address,
+        mint,
+        toTokenAccount.address,
+        account.publicKey,
+        dropAccount.drop * LAMPORTS_PER_SOL,
+        9
+      );
+      transaction.add(transferInstruction);
+      return true;
+    });
+  }, Promise.resolve(true));
+
+  const signers = [
+    {
+      publicKey: account.publicKey,
+      secretKey: account.secretKey,
+    },
+  ];
+
+  return await sendAndConfirmTransaction(connection, transaction, signers);
+};
+
+const drop = async (
+  cluster: Cluster,
+  account: Keypair,
+  dropAccounts: DropAccount[],
+  mode: DropMode,
+  tokenAddress: string
+): Promise<string> => {
+  if (mode === "SOL") {
+    return dropSol(cluster, account, dropAccounts);
+  }
+
+  return dropTokkens(cluster, account, tokenAddress, dropAccounts);
 };
 
 const dropDev = async (
