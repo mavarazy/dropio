@@ -1,5 +1,5 @@
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { faArrowRotateRight } from "@fortawesome/pro-light-svg-icons";
-import { IconDefinition } from "@fortawesome/pro-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { classNames } from "../../utils/class-names";
@@ -43,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       {icon && (
         <FontAwesomeIcon
           icon={loading ? faArrowRotateRight : icon}
-          className={text ? "mx-2" : ""}
+          className={classNames(text ? "mx-2" : "", "h-4 w-4")}
           spin={loading}
         />
       )}

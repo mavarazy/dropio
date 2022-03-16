@@ -1,34 +1,41 @@
-import { faDropbox } from "@fortawesome/free-brands-svg-icons";
 import { faCashRegister, faSync } from "@fortawesome/pro-light-svg-icons";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
+import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
   const {
-    balance,
+    state: { balance, mode, tokenAddress, dropAccounts },
     accountInfo,
-    network,
-    dropAccounts,
     drop,
-    dropDev,
     refreshBalance,
   } = useGlobalState();
 
-  const dropAmount = dropAccounts.reduce((agg, { drop: amount }) => agg + amount, 0);
+  const availableAmount =
+    mode === "SOL"
+      ? balance.sol / LAMPORTS_PER_SOL
+      : balance.tokens.find((token) => token.address === tokenAddress)
+          ?.amount ?? 0;
+
+  console.log(availableAmount);
+
+  const dropAmount = dropAccounts.reduce(
+    (agg, { drop: amount }) => agg + amount,
+    0
+  );
 
   return (
     <dl className="mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow-lg divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x">
       <div className="px-4 py-5 sm:p-6">
-        <dt className="text-base font-normal text-gray-900">Balance</dt>
+        <dt className="text-base font-normal text-gray-900">SOL</dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex items-baseline text-2xl font-semibold text-indigo-600">
-            {balance}
+            {balance.sol / LAMPORTS_PER_SOL}
           </div>
           <div className="flex space-x-1">
-            <Button icon={faSync} onClick={refreshBalance} />
-            {network === "devnet" && (
-              <Button icon={faDropbox} onClick={dropDev} />
-            )}
+            <Button icon={faSync} onClick={() => refreshBalance()} />
+            <DebugButton />
           </div>
         </dd>
       </div>
@@ -44,15 +51,15 @@ export const SendPanel = () => {
       <div className="px-4 py-5 sm:p-6">
         <dt className="text-base font-normal text-gray-900">Send</dt>
         <dd className="mt-1 flex items-baseline md:block lg:flex">
-          {balance > dropAmount && dropAmount > 0 && accountInfo ? (
+          {availableAmount > dropAmount && dropAmount > 0 && accountInfo ? (
             <Button icon={faCashRegister} text="Send" onClick={drop} />
           ) : (
             <div className="flex items-baseline text-2xl font-semibold">
               {dropAmount === 0 ? (
                 <span className="text-green-600">All good</span>
-              ) : dropAmount > balance ? (
+              ) : dropAmount > availableAmount ? (
                 <span className="text-red-600">
-                  {(dropAmount - balance).toPrecision(5)}
+                  {(dropAmount - availableAmount).toPrecision(5)}
                 </span>
               ) : (
                 <span className="text-red-600">Need your mnemonic</span>

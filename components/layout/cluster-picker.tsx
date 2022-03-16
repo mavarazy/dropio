@@ -4,22 +4,19 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 import { Cluster } from "@solana/web3.js";
 import { classNames } from "../../utils/class-names";
 
-const NETWORKS: Cluster[] = ["mainnet-beta", "testnet", "devnet"];
+const CLUSTERS: Cluster[] = ["mainnet-beta", "testnet", "devnet"];
 
-interface NetworkNavigationProps {
-  network: Cluster;
-  setNetwork(network: Cluster): void;
+interface ClusterPickerProps {
+  cluster: Cluster;
+  setCluster(cluster: Cluster): void;
 }
 
-export function NetworkNavigation({
-  network,
-  setNetwork,
-}: NetworkNavigationProps) {
+export function ClusterPicker({ cluster, setCluster }: ClusterPickerProps) {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
         <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 uppercase">
-          {network}
+          {cluster}
           <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
         </Menu.Button>
       </div>
@@ -35,17 +32,17 @@ export function NetworkNavigation({
       >
         <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
-            {NETWORKS.map((network) => (
-              <Menu.Item key={network}>
+            {CLUSTERS.map((cluster) => (
+              <Menu.Item key={cluster}>
                 {({ active }) => (
                   <span
-                    onClick={() => setNetwork(network)}
+                    onClick={() => setCluster(cluster)}
                     className={classNames(
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm uppercase"
                     )}
                   >
-                    {network}
+                    {cluster}
                   </span>
                 )}
               </Menu.Item>

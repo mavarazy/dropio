@@ -1,10 +1,13 @@
 import { FileInput } from "./file-input";
 import Papa from "papaparse";
 import { DropAccount, useGlobalState } from "../../context";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export default function DropTable() {
-  const { beforeMap, afterMap, dropAccounts, setDropAccounts } =
-    useGlobalState();
+  const {
+    state: { dropPopulatedAccounts },
+    setDropAccounts,
+  } = useGlobalState();
 
   const handleImport = async (files: FileList) => {
     const file = files.item(0);
@@ -60,19 +63,31 @@ export default function DropTable() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {dropAccounts.map((account) => (
+                  {dropPopulatedAccounts.map((account) => (
                     <tr key={account.wallet}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {account.wallet}
+                        <br />
+                        <span className="text-xs text-gray-400">
+                          {!account.before
+                            ? "loading"
+                            : account.before === "missing"
+                            ? account.after?.address ?? "missing"
+                            : account.before.address}
+                          &nbsp;
+                        </span>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
                         {account.drop}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
-                        {beforeMap[account.wallet]}
+                        {account.before &&
+                          account.before !== "missing" &&
+                          account.before.amount / LAMPORTS_PER_SOL}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
-                        {afterMap[account.wallet]}
+                        {account.after &&
+                          account.after.amount / LAMPORTS_PER_SOL}
                       </td>
                     </tr>
                   ))}
