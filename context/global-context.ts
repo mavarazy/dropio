@@ -49,7 +49,7 @@ export type GlobalContextType = {
   afterMap: { [key in string]: WalletBallance };
 
   dropDev(): Promise<number>;
-  mineDev(): Promise<number>;
+  mineDev(): Promise<void>;
   refreshBalance(): Promise<void>;
   restoreAccount(form: AccountRestoreForm): Promise<AccountInfo>;
   createAccount(): Promise<AccountInfo>;
@@ -90,7 +90,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   drop: () => Promise.resolve(""),
 
   dropDev: () => Promise.resolve(0),
-  mineDev: () => Promise.resolve(0),
+  mineDev: () => Promise.resolve(),
 });
 
 export const useGlobalState = () => useContext(GlobalContext);

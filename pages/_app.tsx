@@ -173,6 +173,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     setWallet(balance);
   };
 
+  const doMineDev = async () => {
+    await mineDev();
+    await refreshBalance();
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -191,7 +196,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         dropAccounts,
         restoreAccount,
         dropDev: airdrop,
-        mineDev,
+        mineDev: doMineDev,
         setDropAccounts: onDropAccountSet,
         beforeMap,
         afterMap,
