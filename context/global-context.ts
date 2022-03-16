@@ -18,9 +18,8 @@ export interface DropAccountBalance {
 export interface PopulatedDropAccount {
   wallet: string;
   drop: number;
-  address?: string;
-  before?: number;
-  after?: number;
+  before?: DropAccountBalance | "missing";
+  after?: DropAccountBalance;
 }
 
 export type TokenAccount = Pick<TokenInfo, "address"> & { amount: number };

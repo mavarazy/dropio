@@ -54,7 +54,7 @@ const getSolBalance = async (cluster: Cluster, accountId: string) => {
     const publicKey = new PublicKey(accountId);
     const balance = await connection.getBalance(publicKey);
 
-    return balance / LAMPORTS_PER_SOL;
+    return balance;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
@@ -65,30 +65,35 @@ const getSolBalance = async (cluster: Cluster, accountId: string) => {
 
 const getTokenBalance = async (
   cluster: Cluster,
-  account: Keypair,
-  wallet: string,
+  dropAccount: DropAccount,
   tokenAddress: string
-): Promise<{ address: string; amount: number }> => {
+): Promise<DropAccountBalance | "missing"> => {
   try {
     const connection = new Connection(clusterApiUrl(cluster), "confirmed");
     const mint = new PublicKey(tokenAddress);
 
-    const toTokenAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      account,
-      mint,
-      new PublicKey(wallet)
+    const tokenAccount = await connection.getTokenAccountsByOwner(
+      new PublicKey(dropAccount.wallet),
+      {
+        mint,
+      }
+    );
+
+    if (tokenAccount.value.length === 0) {
+      return "missing";
+    }
+
+    const accountInfo = AccountLayout.decode(
+      tokenAccount.value[0].account.data
     );
 
     return {
-      address: toTokenAccount.address.toString(),
-      amount: Number(toTokenAccount.amount) / LAMPORTS_PER_SOL,
+      ...dropAccount,
+      address: accountInfo.mint.toString(),
+      amount: Number(accountInfo.amount),
     };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-
-    throw new Error(`Balance refresh failed: ${errorMessage}`);
+    return "missing";
   }
 };
 
@@ -108,21 +113,17 @@ const getWalletBalance = async (
 const getDropAccountBalance = async (
   cluster: Cluster,
   dropAccount: DropAccount,
-  account: Keypair,
   mode: DropMode,
   tokenAddress: string
-): Promise<DropAccountBalance> => {
-  const balance = await (mode === "SOL"
-    ? getSolBalance(cluster, dropAccount.wallet).then((amount) => ({
-        address: dropAccount.wallet,
-        amount,
-      }))
-    : getTokenBalance(cluster, account, dropAccount.wallet, tokenAddress));
-
-  return {
-    ...dropAccount,
-    ...balance,
-  };
+): Promise<DropAccountBalance | "missing"> => {
+  if (mode === "SOL") {
+    return getSolBalance(cluster, dropAccount.wallet).then((amount) => ({
+      ...dropAccount,
+      address: dropAccount.wallet,
+      amount,
+    }));
+  }
+  return getTokenBalance(cluster, dropAccount, tokenAddress);
 };
 
 const dropSol = async (
@@ -171,10 +172,14 @@ const dropTokkens = async (
   const tokenDropAccounts: DropAccountBalance[] = await accounts.reduce(
     (agg: Promise<DropAccountBalance[]>, account: PopulatedDropAccount) => {
       return agg.then(async (accounts: DropAccountBalance[]) => {
-        if (account.address) {
+        if (
+          account.before &&
+          account.before !== "missing" &&
+          account.before.address
+        ) {
           const dropTokenAccount: DropAccountBalance = {
             ...account,
-            address: account.address,
+            address: account.before.address,
             amount: account.drop,
           };
           return accounts.concat(dropTokenAccount);

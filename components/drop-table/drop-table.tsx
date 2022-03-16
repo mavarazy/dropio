@@ -1,6 +1,7 @@
 import { FileInput } from "./file-input";
 import Papa from "papaparse";
 import { DropAccount, useGlobalState } from "../../context";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export default function DropTable() {
   const {
@@ -68,17 +69,25 @@ export default function DropTable() {
                         {account.wallet}
                         <br />
                         <span className="text-xs text-gray-400">
-                          {account.address}&nbsp;
+                          {!account.before
+                            ? "loading"
+                            : account.before === "missing"
+                            ? account.after?.address ?? "missing"
+                            : account.before.address}
+                          &nbsp;
                         </span>
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
                         {account.drop}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
-                        {account.before}
+                        {account.before &&
+                          account.before !== "missing" &&
+                          account.before.amount / LAMPORTS_PER_SOL}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
-                        {account.after}
+                        {account.after &&
+                          account.after.amount / LAMPORTS_PER_SOL}
                       </td>
                     </tr>
                   ))}

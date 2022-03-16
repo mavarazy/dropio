@@ -34,7 +34,10 @@ type AppAction =
     }
   | {
       type: "SET_DROP_ACCOUNT_BEFORE";
-      payload: DropAccountBalance;
+      payload: {
+        wallet: string;
+        balance: DropAccountBalance | "missing";
+      };
     }
   | {
       type: "SET_DROP_ACCOUNT_AFTER";
@@ -80,11 +83,14 @@ function reducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         tokenAddress: action.payload,
-        dropAccounts: state.dropAccounts,
-        dropPopulatedAccounts: state.dropPopulatedAccounts.map((acc) => ({
-          wallet: acc.wallet,
-          drop: acc.drop,
-        })),
+        dropPopulatedAccounts: state.dropAccounts,
+      };
+    }
+    case "SET_MODE": {
+      return {
+        ...state,
+        mode: action.payload,
+        dropPopulatedAccounts: state.dropAccounts,
       };
     }
     case "SET_DROP_ACCOUNT_BEFORE": {
@@ -92,7 +98,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         dropPopulatedAccounts: state.dropPopulatedAccounts.map((drop) =>
           drop.wallet === action.payload.wallet
-            ? { ...action.payload, before: action.payload.amount }
+            ? { ...drop, before: action.payload.balance }
             : drop
         ),
       };
@@ -102,15 +108,9 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         dropPopulatedAccounts: state.dropPopulatedAccounts.map((drop) =>
           drop.wallet === action.payload.wallet
-            ? { ...drop, after: action.payload.amount }
+            ? { ...drop, after: action.payload }
             : drop
         ),
-      };
-    }
-    case "SET_MODE": {
-      return {
-        ...state,
-        mode: action.payload,
       };
     }
     case "SET_BALANCE": {
@@ -164,20 +164,20 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     console.log("Updating drop accounts");
     state.dropAccounts.forEach(async (dropAccount) => {
-      if (accountInfo) {
-        const balance = await BalanceService.getDropAccountBalance(
-          state.cluster,
-          dropAccount,
-          accountInfo.account,
-          state.mode,
-          state.tokenAddress
-        );
+      const balance = await BalanceService.getDropAccountBalance(
+        state.cluster,
+        dropAccount,
+        state.mode,
+        state.tokenAddress
+      );
 
-        dispatch({
-          type: "SET_DROP_ACCOUNT_BEFORE",
-          payload: balance,
-        });
-      }
+      dispatch({
+        type: "SET_DROP_ACCOUNT_BEFORE",
+        payload: {
+          wallet: dropAccount.wallet,
+          balance,
+        },
+      });
     });
   }, [
     accountInfo,
@@ -219,15 +219,16 @@ function MyApp({ Component, pageProps }: AppProps) {
         const balance = await BalanceService.getDropAccountBalance(
           state.cluster,
           account,
-          accountInfo.account,
           state.mode,
           state.tokenAddress
         );
 
-        dispatch({
-          type: "SET_DROP_ACCOUNT_AFTER",
-          payload: balance,
-        });
+        if (balance !== "missing") {
+          dispatch({
+            type: "SET_DROP_ACCOUNT_AFTER",
+            payload: balance,
+          });
+        }
       }
     });
     return signature;
