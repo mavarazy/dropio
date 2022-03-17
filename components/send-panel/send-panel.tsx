@@ -17,8 +17,6 @@ export const SendPanel = () => {
       : balance.tokens.find((token) => token.address === tokenAddress)
           ?.amount ?? 0;
 
-  console.log(availableAmount);
-
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
     0

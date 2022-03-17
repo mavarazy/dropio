@@ -250,32 +250,8 @@ const drop = async (
   return dropTokkens(cluster, account, tokenAddress, dropAccounts);
 };
 
-const dropDev = async (
-  cluster: Cluster,
-  account: Keypair | null
-): Promise<number> => {
-  // This line ensures the function returns before running if no account has been set
-  if (!account || cluster !== "devnet") return 0;
-
-  try {
-    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
-    const publicKey = account.publicKey;
-    const airdropSignature = await connection.requestAirdrop(
-      publicKey,
-      LAMPORTS_PER_SOL
-    );
-    await connection.confirmTransaction(airdropSignature, "confirmed");
-    return getSolBalance(cluster, account.publicKey.toString());
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown Error";
-    throw new Error(`Airdrop failed: ${errorMessage}`);
-  }
-};
-
 export const BalanceService = {
   getWalletBalance,
   getDropAccountBalance,
-  dropDev,
   drop,
 };

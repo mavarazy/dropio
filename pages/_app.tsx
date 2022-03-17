@@ -162,7 +162,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [state.balance.id, state.cluster]);
 
   useEffect(() => {
-    console.log("Updating drop accounts");
     state.dropAccounts.forEach(async (dropAccount) => {
       const balance = await BalanceService.getDropAccountBalance(
         state.cluster,
