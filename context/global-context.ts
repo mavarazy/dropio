@@ -5,28 +5,28 @@ import { TokenInfo } from "@solana/spl-token-registry";
 
 export interface DropAccount {
   wallet: string;
-  drop: number;
+  drop: bigint;
 }
 
 export interface DropAccountBalance {
   wallet: string;
-  drop: number;
+  drop: bigint;
   address: string;
-  amount: number;
+  amount: bigint;
 }
 
 export interface PopulatedDropAccount {
   wallet: string;
-  drop: number;
+  drop: bigint;
   before?: DropAccountBalance | "missing";
   after?: DropAccountBalance;
 }
 
-export type TokenAccount = { token: TokenInfo; amount: number };
+export type TokenAccount = { token: TokenInfo; amount: bigint };
 
 export interface WalletBallance {
   id: string;
-  sol: number;
+  sol: bigint;
   tokens: TokenAccount[];
 }
 
@@ -79,7 +79,7 @@ export const GlobalContext = createContext<GlobalContextType>({
     mode: "SOL",
     balance: {
       id: "test",
-      sol: 0,
+      sol: BigInt(0),
       tokens: [],
     },
     fee: TransactionFee,

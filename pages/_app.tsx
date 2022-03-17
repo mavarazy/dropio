@@ -83,7 +83,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         cluster: action.payload,
         balance: {
           id: state.balance.id,
-          sol: 0,
+          sol: BigInt(0),
           tokens: [],
         },
         dropPopulatedAccounts: state.dropAccounts,
@@ -174,7 +174,7 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         balance: {
           id: action.payload,
-          sol: 0,
+          sol: BigInt(0),
           tokens: [],
         },
       };
@@ -193,7 +193,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     officialTokens: [],
     balance: {
       id: "CQD3KBgZ8r4TrS2LbU2fEHJm7gf8csQv4LJd2XypntvH",
-      sol: 0,
+      sol: BigInt(0),
       tokens: [],
     },
     fee: BigInt(0),

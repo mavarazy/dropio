@@ -65,7 +65,9 @@ export default function DropTable() {
     const result = Papa.parse(source, {
       header: true,
       transform: (value, field) => {
-        return field === "drop" ? NumberUtils.parseLamport(value) : value;
+        return field === "drop"
+          ? NumberUtils.parseLamport(value.replaceAll("\"|'", ""))
+          : value;
       },
     });
 
@@ -119,7 +121,7 @@ export default function DropTable() {
                         <TokenAddressLink account={account} cluster={cluster} />
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        {account.drop}
+                        {TokenUtils.getHumanAmount(account.drop, "SOL", token)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
                         {account.before &&

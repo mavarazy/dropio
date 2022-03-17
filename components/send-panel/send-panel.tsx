@@ -1,5 +1,4 @@
 import { faRaindrops, faSync } from "@fortawesome/pro-light-svg-icons";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { classNames } from "../../utils/class-names";
 import { TokenUtils } from "../../utils/token-utils";
@@ -14,21 +13,24 @@ export const SendPanel = () => {
     refreshBalance,
   } = useGlobalState();
 
-  const humanSol = balance.sol / LAMPORTS_PER_SOL;
+  const currentDecimals =
+    mode === "SOL"
+      ? 9
+      : balance.tokens.find((t) => t.token.address === token.address)?.token
+          .decimals ?? 9;
+
+  const currentAmount: bigint =
+    mode === "SOL"
+      ? balance.sol
+      : balance.tokens.find((t) => t.token.address === token.address)?.amount ??
+        BigInt(0);
 
   const availableAmount =
-    mode === "SOL"
-      ? humanSol
-      : TokenUtils.getHumanAmount(
-          balance.tokens.find((t) => t.token.address === token.address)
-            ?.amount ?? 0,
-          mode,
-          token
-        );
+    currentAmount * BigInt(Math.pow(10, 9 - currentDecimals));
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
-    0
+    BigInt(0)
   );
 
   const enoughSol = balance.sol >= fee;
@@ -42,7 +44,7 @@ export const SendPanel = () => {
   const error =
     dropAmount > availableAmount
       ? `Missing some: ${mode == "SOL" ? "SOL" : token.name}`
-      : dropAmount !== 0
+      : dropAmount !== BigInt(0)
       ? "Missing your: mnemonic"
       : "";
 
@@ -52,7 +54,9 @@ export const SendPanel = () => {
         <dt className="font-normal text-gray-900 font-mono text-xs">SOL</dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex flex-col items-baseline text-2xl font-semibold text-indigo-600">
-            <span className="h-9">{humanSol}</span>
+            <span className="h-9">
+              {TokenUtils.getHumanAmount(balance.sol, "SOL", token)}
+            </span>
             <span
               className={classNames(
                 enoughSol ? "text-green-500" : "text-red-500",
@@ -62,11 +66,7 @@ export const SendPanel = () => {
               After:&nbsp;
               {TokenUtils.getHumanAmount(
                 BigInt(balance.sol) -
-                  BigInt(
-                    mode === "SOL"
-                      ? Math.round(dropAmount * LAMPORTS_PER_SOL)
-                      : 0
-                  ) -
+                  BigInt(mode === "SOL" ? dropAmount : BigInt(0)) -
                   fee,
                 "SOL",
                 token
@@ -87,9 +87,11 @@ export const SendPanel = () => {
           </span>
         </dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
-          <div className="flex flex-1 items-baseline text-2xl font-semibold text-indigo-600">
+          <div className="flex flex-1 text-2xl font-semibold text-indigo-600">
             <span className="flex flex-1 flex-col">
-              <span className="h-9">{dropAmount.toPrecision(2)}</span>
+              <span className="h-9">
+                {TokenUtils.getHumanAmount(dropAmount, "SOL", token)}
+              </span>
               <span
                 className={classNames(
                   enoughSol ? "text-green-500" : "text-red-500",
@@ -107,7 +109,9 @@ export const SendPanel = () => {
                 "text-xl px-3 flex flex-col"
               )}
             >
-              <span className="text-right text-2xl h-9">{availableAmount}</span>
+              <span className="text-right text-2xl h-9">
+                {TokenUtils.getHumanAmount(availableAmount, "SOL", token)}
+              </span>
               <span className="text-xs text-right">available</span>
             </span>
           </div>

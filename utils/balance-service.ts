@@ -56,7 +56,7 @@ const getTokens = async (
 
         const account: TokenAccount = {
           token,
-          amount: Number(accountInfo.amount),
+          amount: accountInfo.amount,
         };
 
         return accounts.concat(account);
@@ -66,13 +66,16 @@ const getTokens = async (
   );
 };
 
-const getSolBalance = async (cluster: Cluster, accountId: string) => {
+const getSolBalance = async (
+  cluster: Cluster,
+  accountId: string
+): Promise<bigint> => {
   try {
     const connection = new Connection(clusterApiUrl(cluster), "confirmed");
     const publicKey = new PublicKey(accountId);
     const balance = await connection.getBalance(publicKey);
 
-    return balance;
+    return BigInt(balance);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Error";
@@ -109,7 +112,7 @@ const getTokenBalance = async (
     return {
       ...dropAccount,
       address,
-      amount: Number(accountInfo.amount),
+      amount: accountInfo.amount,
     };
   } catch (error) {
     return "missing";
@@ -153,12 +156,12 @@ const dropSol = async (
   const connection = new Connection(clusterApiUrl(cluster), "confirmed");
 
   const transaction = new Transaction();
-  dropAccounts.forEach(({ wallet: accountId, drop: amount }) => {
+  dropAccounts.forEach(({ wallet: accountId, drop }) => {
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: account.publicKey,
         toPubkey: new PublicKey(accountId),
-        lamports: amount * LAMPORTS_PER_SOL,
+        lamports: Number(drop),
       })
     );
   });
@@ -232,7 +235,7 @@ const dropTokens = async (
       mint,
       new PublicKey(tokenDropAccount.address),
       wallet.publicKey,
-      tokenDropAccount.drop * Math.pow(10, mintAccount.decimals),
+      tokenDropAccount.drop / BigInt(Math.pow(10, 9 - mintAccount.decimals)),
       mintAccount.decimals
     );
     transaction.add(transferInstruction);
