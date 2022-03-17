@@ -25,6 +25,7 @@ import {
   DropAccountBalance,
   PopulatedDropAccount,
 } from "../context";
+import chunk from "lodash.chunk";
 
 const getTokens = async (
   cluster: Cluster,
@@ -148,108 +149,110 @@ const getDropAccountBalance = async (
   return getTokenBalance(cluster, dropAccount, tokenAddress);
 };
 
-const dropSol = async (
-  cluster: Cluster,
-  account: Keypair,
-  dropAccounts: DropAccount[]
-) => {
-  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+async function doInChunks<T, R>(
+  items: T[],
+  processing: (array: T[]) => Promise<R>
+): Promise<R[]> {
+  return await Promise.all(chunk(items, 20).map((ch) => processing(ch)));
+}
 
-  const transaction = new Transaction();
-  dropAccounts.forEach(({ wallet: accountId, drop }) => {
-    transaction.add(
-      SystemProgram.transfer({
-        fromPubkey: account.publicKey,
-        toPubkey: new PublicKey(accountId),
-        lamports: Number(drop),
-      })
+const dropSol =
+  (cluster: Cluster, account: Keypair) =>
+  async (dropAccounts: DropAccount[]) => {
+    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+
+    const transaction = new Transaction();
+    dropAccounts.forEach(({ wallet: accountId, drop }) => {
+      transaction.add(
+        SystemProgram.transfer({
+          fromPubkey: account.publicKey,
+          toPubkey: new PublicKey(accountId),
+          lamports: Number(drop),
+        })
+      );
+    });
+
+    const signers = [
+      {
+        publicKey: account.publicKey,
+        secretKey: account.secretKey,
+      },
+    ];
+
+    return await sendAndConfirmTransaction(connection, transaction, signers);
+  };
+
+const dropTokens =
+  (cluster: Cluster, wallet: Keypair, tokenAddress: string) =>
+  async (accounts: PopulatedDropAccount[]) => {
+    const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+    const mint = new PublicKey(tokenAddress);
+
+    const mintAccount = await getMint(connection, mint);
+
+    const tokenDropAccounts: DropAccountBalance[] = await accounts.reduce(
+      (agg: Promise<DropAccountBalance[]>, account: PopulatedDropAccount) => {
+        return agg.then(async (accounts: DropAccountBalance[]) => {
+          if (account.before && account.before !== "missing") {
+            const dropTokenAccount: DropAccountBalance = {
+              ...account,
+              address: account.before.address,
+              amount: account.drop,
+            };
+            return accounts.concat(dropTokenAccount);
+          } else {
+            const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+              connection,
+              wallet,
+              mint,
+              new PublicKey(account.wallet)
+            );
+
+            const dropTokenAccount: DropAccountBalance = {
+              ...account,
+              address: toTokenAccount.address.toString(),
+              amount: account.drop,
+            };
+
+            return accounts.concat(dropTokenAccount);
+          }
+        });
+      },
+      Promise.resolve([])
     );
-  });
 
-  const signers = [
-    {
-      publicKey: account.publicKey,
-      secretKey: account.secretKey,
-    },
-  ];
+    const transaction = new Transaction({
+      feePayer: wallet.publicKey,
+    });
 
-  return await sendAndConfirmTransaction(connection, transaction, signers);
-};
-
-const dropTokens = async (
-  cluster: Cluster,
-  wallet: Keypair,
-  tokenAddress: string,
-  accounts: PopulatedDropAccount[]
-) => {
-  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
-  const mint = new PublicKey(tokenAddress);
-
-  const mintAccount = await getMint(connection, mint);
-
-  const tokenDropAccounts: DropAccountBalance[] = await accounts.reduce(
-    (agg: Promise<DropAccountBalance[]>, account: PopulatedDropAccount) => {
-      return agg.then(async (accounts: DropAccountBalance[]) => {
-        if (account.before && account.before !== "missing") {
-          const dropTokenAccount: DropAccountBalance = {
-            ...account,
-            address: account.before.address,
-            amount: account.drop,
-          };
-          return accounts.concat(dropTokenAccount);
-        } else {
-          const toTokenAccount = await getOrCreateAssociatedTokenAccount(
-            connection,
-            wallet,
-            mint,
-            new PublicKey(account.wallet)
-          );
-
-          const dropTokenAccount: DropAccountBalance = {
-            ...account,
-            address: toTokenAccount.address.toString(),
-            amount: account.drop,
-          };
-
-          return accounts.concat(dropTokenAccount);
-        }
-      });
-    },
-    Promise.resolve([])
-  );
-
-  const transaction = new Transaction({
-    feePayer: wallet.publicKey,
-  });
-
-  const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
-    connection,
-    wallet,
-    mint,
-    wallet.publicKey
-  );
-
-  tokenDropAccounts.forEach((tokenDropAccount) => {
-    const transferInstruction = createTransferCheckedInstruction(
-      fromTokenAccount.address,
+    const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      wallet,
       mint,
-      new PublicKey(tokenDropAccount.address),
-      wallet.publicKey,
-      tokenDropAccount.drop / BigInt(Math.pow(10, 9 - mintAccount.decimals)),
-      mintAccount.decimals
+      wallet.publicKey
     );
-    transaction.add(transferInstruction);
-  });
 
-  const signers = [
-    {
-      publicKey: wallet.publicKey,
-      secretKey: wallet.secretKey,
-    },
-  ];
+    tokenDropAccounts.forEach((tokenDropAccount) => {
+      const transferInstruction = createTransferCheckedInstruction(
+        fromTokenAccount.address,
+        mint,
+        new PublicKey(tokenDropAccount.address),
+        wallet.publicKey,
+        tokenDropAccount.drop / BigInt(Math.pow(10, 9 - mintAccount.decimals)),
+        mintAccount.decimals
+      );
+      transaction.add(transferInstruction);
+    });
 
-  return await sendAndConfirmTransaction(connection, transaction, signers);
-};
+    const signers = [
+      {
+        publicKey: wallet.publicKey,
+        secretKey: wallet.secretKey,
+      },
+    ];
+
+    return await sendAndConfirmTransaction(connection, transaction, signers);
+  };
 
 const drop = async (
   cluster: Cluster,
@@ -257,12 +260,12 @@ const drop = async (
   dropAccounts: PopulatedDropAccount[],
   mode: DropMode,
   tokenAddress: string
-): Promise<string> => {
+): Promise<string[]> => {
   if (mode === "SOL") {
-    return dropSol(cluster, account, dropAccounts);
+    return doInChunks(dropAccounts, dropSol(cluster, account));
   }
 
-  return dropTokens(cluster, account, tokenAddress, dropAccounts);
+  return doInChunks(dropAccounts, dropTokens(cluster, account, tokenAddress));
 };
 
 export const BalanceService = {
