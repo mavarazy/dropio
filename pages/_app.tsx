@@ -10,6 +10,8 @@ import {
   GlobalContext,
   AppState,
   DropAccountBalance,
+  TransactionFee,
+  AccountCreationFee,
 } from "../context";
 import { Layout } from "../components/layout";
 import { Notification, NotificationProps } from "../components/notification";
@@ -68,6 +70,8 @@ function reducer(state: AppState, action: AppAction): AppState {
     case "SET_DROP_ACCOUNT":
       return {
         ...state,
+        fee:
+          TransactionFee + AccountCreationFee * BigInt(action.payload.length),
         dropAccounts: action.payload,
         dropPopulatedAccounts: action.payload,
       };
@@ -108,23 +112,40 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     }
     case "SET_DROP_ACCOUNT_BEFORE": {
+      const updatedPopulatedAccounts = state.dropPopulatedAccounts.map((drop) =>
+        drop.wallet === action.payload.wallet
+          ? { ...drop, before: action.payload.balance }
+          : drop
+      );
+      const numDropAccountsWithAddress = updatedPopulatedAccounts.reduce(
+        (agg, account) =>
+          agg + (account.before && account.before !== "missing" ? 0 : 1),
+        0
+      );
       return {
         ...state,
-        dropPopulatedAccounts: state.dropPopulatedAccounts.map((drop) =>
-          drop.wallet === action.payload.wallet
-            ? { ...drop, before: action.payload.balance }
-            : drop
-        ),
+        fee:
+          TransactionFee +
+          AccountCreationFee * BigInt(numDropAccountsWithAddress),
+        dropPopulatedAccounts: updatedPopulatedAccounts,
       };
     }
     case "SET_DROP_ACCOUNT_AFTER": {
+      const updatedPopulatedAccounts = state.dropPopulatedAccounts.map((drop) =>
+        drop.wallet === action.payload.wallet
+          ? { ...drop, after: action.payload }
+          : drop
+      );
+      const numDropAccountsWithAddress = updatedPopulatedAccounts.reduce(
+        (agg, account) => agg + (account.after ? 0 : 1),
+        0
+      );
       return {
         ...state,
-        dropPopulatedAccounts: state.dropPopulatedAccounts.map((drop) =>
-          drop.wallet === action.payload.wallet
-            ? { ...drop, after: action.payload }
-            : drop
-        ),
+        fee:
+          TransactionFee +
+          AccountCreationFee * BigInt(numDropAccountsWithAddress),
+        dropPopulatedAccounts: updatedPopulatedAccounts,
       };
     }
     case "SET_BALANCE": {
@@ -175,6 +196,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       sol: 0,
       tokens: [],
     },
+    fee: BigInt(0),
     dropAccounts: [],
     dropPopulatedAccounts: [],
   });

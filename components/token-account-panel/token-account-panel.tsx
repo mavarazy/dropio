@@ -47,7 +47,7 @@ export function TokenAccountPanel() {
                       "font-semibold text-2xl truncate"
                     )}
                   >
-                    {TokenUtils.getHumanAmount(amount, mode, token)}
+                    {TokenUtils.getHumanAmount(amount, "Token", token)}
                   </p>
                 </div>
                 <TokenLogo

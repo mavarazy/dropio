@@ -41,12 +41,15 @@ export const DefaultToken: TokenInfo = {
   logoURI: "https://tinycolony.io/tinycolonytoken.png",
 };
 
+export const TransactionFee = BigInt(5000);
+export const AccountCreationFee = BigInt(2044280);
 export interface AppState {
   cluster: Cluster;
   mode: DropMode;
   token: TokenInfo;
   officialTokens: TokenInfo[];
   balance: WalletBallance;
+  fee: bigint;
   dropAccounts: DropAccount[];
   dropPopulatedAccounts: PopulatedDropAccount[];
 }
@@ -77,6 +80,7 @@ export const GlobalContext = createContext<GlobalContextType>({
       sol: 0,
       tokens: [],
     },
+    fee: TransactionFee,
     officialTokens: [],
     dropAccounts: [],
     dropPopulatedAccounts: [],
