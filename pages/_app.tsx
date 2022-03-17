@@ -64,7 +64,6 @@ type AppAction =
     };
 
 function reducer(state: AppState, action: AppAction): AppState {
-  console.log(action.type);
   switch (action.type) {
     case "SET_DROP_ACCOUNT":
       return {
@@ -76,16 +75,14 @@ function reducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         mode: "SOL",
+        token: DefaultToken,
         cluster: action.payload,
         balance: {
           id: state.balance.id,
           sol: 0,
           tokens: [],
         },
-        dropAccounts: state.dropAccounts.map((acc) => ({
-          wallet: acc.wallet,
-          drop: acc.drop,
-        })),
+        dropPopulatedAccounts: state.dropAccounts,
       };
     case "SET_OFFICIAL_TOKENS": {
       return {
@@ -106,6 +103,7 @@ function reducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         mode: action.payload,
+        token: state.officialTokens[0], // Set to SOL token to keep decimals working
         dropPopulatedAccounts: state.dropAccounts,
       };
     }

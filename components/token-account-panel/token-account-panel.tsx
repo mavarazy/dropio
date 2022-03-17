@@ -1,6 +1,6 @@
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { classNames } from "../../utils/class-names";
+import { TokenUtils } from "../../utils/token-utils";
 import { TokenLogo } from "../token-logo";
 
 export function TokenAccountPanel() {
@@ -47,7 +47,7 @@ export function TokenAccountPanel() {
                       "font-semibold text-2xl truncate"
                     )}
                   >
-                    {Number(amount) / Math.pow(10, token.decimals)}
+                    {TokenUtils.getHumanAmount(amount, mode, token)}
                   </p>
                 </div>
                 <TokenLogo

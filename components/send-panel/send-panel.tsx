@@ -1,11 +1,7 @@
-import {
-  faCashRegister,
-  faRainbow,
-  faRaindrops,
-  faSync,
-} from "@fortawesome/pro-light-svg-icons";
+import { faRaindrops, faSync } from "@fortawesome/pro-light-svg-icons";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
+import { TokenUtils } from "../../utils/token-utils";
 import { Button } from "../button";
 
 export const SendPanel = () => {
@@ -16,11 +12,17 @@ export const SendPanel = () => {
     refreshBalance,
   } = useGlobalState();
 
+  const humanSol = balance.sol / LAMPORTS_PER_SOL;
+
   const availableAmount =
     mode === "SOL"
-      ? balance.sol / LAMPORTS_PER_SOL
-      : (balance.tokens.find((t) => t.token.address === token.address)
-          ?.amount ?? 0) / Math.pow(10, token.decimals);
+      ? humanSol
+      : TokenUtils.getHumanAmount(
+          balance.tokens.find((t) => t.token.address === token.address)
+            ?.amount ?? 0,
+          mode,
+          token
+        );
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
@@ -33,7 +35,7 @@ export const SendPanel = () => {
         <dt className="text-base font-normal text-gray-900">SOL</dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex items-baseline text-2xl font-semibold text-indigo-600">
-            {balance.sol / LAMPORTS_PER_SOL}
+            {humanSol}
           </div>
           <div className="flex space-x-1">
             <Button icon={faSync} onClick={() => refreshBalance()} />
