@@ -2,7 +2,6 @@ import { faCashRegister, faSync } from "@fortawesome/pro-light-svg-icons";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
-import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
   const {
@@ -35,7 +34,6 @@ export const SendPanel = () => {
           </div>
           <div className="flex space-x-1">
             <Button icon={faSync} onClick={() => refreshBalance()} />
-            <DebugButton />
           </div>
         </dd>
       </div>
