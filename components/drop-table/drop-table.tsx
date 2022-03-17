@@ -65,7 +65,9 @@ export default function DropTable() {
     const result = Papa.parse(source, {
       header: true,
       transform: (value, field) => {
-        return field === "drop" ? NumberUtils.parseLamport(value) : value;
+        return field === "drop"
+          ? NumberUtils.parseLamport(value.replaceAll("\"|'", ""))
+          : value;
       },
     });
 

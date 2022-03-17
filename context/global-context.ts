@@ -22,7 +22,7 @@ export interface PopulatedDropAccount {
   after?: DropAccountBalance;
 }
 
-export type TokenAccount = { token: TokenInfo; amount: number };
+export type TokenAccount = { token: TokenInfo; amount: bigint };
 
 export interface WalletBallance {
   id: string;

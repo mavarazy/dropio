@@ -56,7 +56,7 @@ const getTokens = async (
 
         const account: TokenAccount = {
           token,
-          amount: Number(accountInfo.amount),
+          amount: accountInfo.amount,
         };
 
         return accounts.concat(account);

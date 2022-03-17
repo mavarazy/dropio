@@ -13,15 +13,20 @@ export const SendPanel = () => {
     refreshBalance,
   } = useGlobalState();
 
-  const availableAmount =
+  const currentDecimals =
+    mode === "SOL"
+      ? 9
+      : balance.tokens.find((t) => t.token.address === token.address)?.token
+          .decimals ?? 9;
+
+  const currentAmount: bigint =
     mode === "SOL"
       ? balance.sol
-      : TokenUtils.getHumanAmount(
-          balance.tokens.find((t) => t.token.address === token.address)
-            ?.amount ?? 0,
-          mode,
-          token
-        );
+      : balance.tokens.find((t) => t.token.address === token.address)?.amount ??
+        BigInt(0);
+
+  const availableAmount =
+    currentAmount * BigInt(Math.pow(10, 9 - currentDecimals));
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
@@ -104,7 +109,9 @@ export const SendPanel = () => {
                 "text-xl px-3 flex flex-col"
               )}
             >
-              <span className="text-right text-2xl h-9">{availableAmount}</span>
+              <span className="text-right text-2xl h-9">
+                {TokenUtils.getHumanAmount(availableAmount, "SOL", token)}
+              </span>
               <span className="text-xs text-right">available</span>
             </span>
           </div>
