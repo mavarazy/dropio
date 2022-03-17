@@ -15,8 +15,7 @@ export function ClusterPicker({ cluster, setCluster }: ClusterPickerProps) {
   return (
     <Menu
       as="div"
-      className="relative inline-block text-left"
-      style={{ fontFamily: "Press Start\\ 2P", fontSize: 9 }}
+      className="relative inline-block text-left font-mono text-[9px]"
     >
       <div>
         <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 uppercase">

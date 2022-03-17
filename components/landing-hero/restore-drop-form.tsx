@@ -30,9 +30,8 @@ export function RestoreDropForm() {
           isSubmitting
             ? "text-indigo-600 bg-white"
             : "text-white bg-indigo-600",
-          "rounded-full uppercase text-xs items-center justify-center px-4 py-2 border border-transparent shadow-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3"
+          "font-mono rounded-full uppercase text-xs items-center justify-center px-6 py-2 border border-transparent shadow-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3"
         )}
-        style={{ fontFamily: "Press Start\\ 2P" }}
       >
         Restore
       </button>
