@@ -21,7 +21,6 @@ import {
 } from "../utils/account-service";
 import { BalanceService } from "../utils/balance-service";
 import { TokenInfo, TokenListProvider } from "@solana/spl-token-registry";
-import { MintService } from "../utils/mint-service";
 
 type AppAction =
   | {
@@ -82,6 +81,7 @@ function reducer(state: AppState, action: AppAction): AppState {
     case "SET_TOKEN_ADDRESS": {
       return {
         ...state,
+        mode: "Token",
         tokenAddress: action.payload,
         dropPopulatedAccounts: state.dropAccounts,
       };
@@ -162,7 +162,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, [state.balance.id, state.cluster]);
 
   useEffect(() => {
-    console.log("Updating drop accounts");
     state.dropAccounts.forEach(async (dropAccount) => {
       const balance = await BalanceService.getDropAccountBalance(
         state.cluster,
@@ -260,34 +259,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     return accountInfo;
   };
 
-  const airdrop = async () => {
-    if (accountInfo?.account) {
-      const balance = await BalanceService.dropDev(
-        state.cluster,
-        accountInfo?.account
-      );
-      refreshBalance();
-      return balance;
-    }
-    return 0;
-  };
-
-  const mineDev = async () => {
-    if (accountInfo?.account) {
-      const balance = await MintService.mintDev(
-        state.cluster,
-        accountInfo?.account
-      );
-      return balance;
-    }
-    return 0;
-  };
-
-  const doMineDev = async () => {
-    await mineDev();
-    await refreshBalance();
-  };
-
   return (
     <GlobalContext.Provider
       value={{
@@ -306,10 +277,8 @@ function MyApp({ Component, pageProps }: AppProps) {
         tokens: tokens,
 
         createAccount,
-        refreshBalance,
         restoreAccount,
-        dropDev: airdrop,
-        mineDev: doMineDev,
+        refreshBalance,
         drop,
       }}
     >

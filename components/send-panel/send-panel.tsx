@@ -2,7 +2,6 @@ import { faCashRegister, faSync } from "@fortawesome/pro-light-svg-icons";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
-import { DebugButton } from "./debug-button";
 
 export const SendPanel = () => {
   const {
@@ -17,8 +16,6 @@ export const SendPanel = () => {
       ? balance.sol / LAMPORTS_PER_SOL
       : balance.tokens.find((token) => token.address === tokenAddress)
           ?.amount ?? 0;
-
-  console.log(availableAmount);
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
@@ -35,7 +32,6 @@ export const SendPanel = () => {
           </div>
           <div className="flex space-x-1">
             <Button icon={faSync} onClick={() => refreshBalance()} />
-            <DebugButton />
           </div>
         </dd>
       </div>

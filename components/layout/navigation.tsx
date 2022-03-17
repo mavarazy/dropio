@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ClusterPicker } from "./cluster-picker";
 import { useGlobalState } from "../../context";
 import Link from "next/link";
+import { DevPanel } from "./dev-panel";
 
 const navs: Array<{ name: string; link: string }> = [];
 
@@ -59,6 +60,7 @@ export function Navigation() {
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <DevPanel />
                 <ClusterPicker cluster={cluster} setCluster={setCluster} />
               </div>
             </div>
