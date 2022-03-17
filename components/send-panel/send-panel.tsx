@@ -80,10 +80,10 @@ export const SendPanel = () => {
         </dd>
       </div>
       <div className="px-4 py-5 sm:p-6">
-        <dt className="relative text-base font-normal text-gray-900 flex">
+        <dt className="text-base font-normal text-gray-900 flex">
           <span className="flex flex-1 font-mono text-xs">DROP AMOUNT</span>
-          <span className="bg-green-500 text-white rounded-full px-3 absolute right-0 bottom-0.5">
-            {mode === "SOL" ? "SOL" : truncate(token.name, { length: 10 })}
+          <span className="rounded-full px-3 h-4 text-xs">
+            {mode === "SOL" ? "SOL" : truncate(token.name, { length: 15 })}
           </span>
         </dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">

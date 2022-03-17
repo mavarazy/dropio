@@ -67,7 +67,7 @@ export const TokenPicker = () => {
   );
 
   return (
-    <div className="w-96 z-10">
+    <div className="w-96">
       <Combobox value={token} onChange={setToken}>
         <div className="relative">
           <Combobox.Button className="w-full flex text-left bg-white rounded-lg border sm:text-sm overflow-hidden cursor-pointer">
