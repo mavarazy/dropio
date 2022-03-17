@@ -215,8 +215,6 @@ const dropTokens = async (
     Promise.resolve([])
   );
 
-  console.log(tokenDropAccounts);
-
   const transaction = new Transaction({
     feePayer: wallet.publicKey,
   });

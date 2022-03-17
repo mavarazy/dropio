@@ -1,1 +1,1 @@
-export * from './wallet-panel'
+export * from './landing-hero'

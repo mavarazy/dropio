@@ -21,7 +21,7 @@ export function StackingPicker() {
   } = useGlobalState();
 
   return (
-    <RadioGroup value={mode} onChange={setMode} className="mt-2">
+    <RadioGroup value={mode} onChange={setMode} className="mt-4">
       <div className="grid grid-cols-4 gap-4">
         {Modes.map(({ mode, image }) => (
           <RadioGroup.Option
@@ -34,7 +34,7 @@ export function StackingPicker() {
                 checked
                   ? "bg-indigo-500 border-transparent text-white hover:bg-indigo-700"
                   : "bg-white border-gray-200 text-gray-900 hover:bg-gray-50",
-                "border rounded-md py-2 px-2 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
+                "border rounded-md py-0 px-2 flex items-center justify-center text-sm font-medium uppercase sm:flex-1"
               )
             }
           >
@@ -44,7 +44,7 @@ export function StackingPicker() {
             </RadioGroup.Label>
           </RadioGroup.Option>
         ))}
-        <div className="col-span-2 flex items-center justify-center">
+        <div className="col-span-2 flex items-center justify-end">
           {mode === "Token" && <TokenPicker />}
         </div>
       </div>

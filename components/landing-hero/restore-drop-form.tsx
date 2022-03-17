@@ -22,7 +22,7 @@ export function RestoreDropForm() {
           Mnemonic
         </label>
         <input
-          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-2"
+          className="border-b focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none focus:border-b-2 block w-full sm:text-sm border-gray-300 py-2 px-2"
           placeholder="Mnemonic"
           {...register("mnemonic")}
         />

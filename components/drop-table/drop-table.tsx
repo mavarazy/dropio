@@ -33,7 +33,7 @@ const TokenAddressLink: React.FC<{
     return <span>Loading</span>;
   }
   if (before === "missing" && !after) {
-    return <span >missing</span>;
+    return <span>missing</span>;
   }
 
   const address = after?.address ?? (before as DropAccountBalance)?.address;
@@ -72,7 +72,7 @@ export default function DropTable() {
 
   return (
     <div>
-      <div className="mt-8 flex flex-col">
+      <div className="mt-2 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg flex space-y-1">
@@ -136,7 +136,7 @@ export default function DropTable() {
           </div>
         </div>
       </div>
-      <div className="flex flex-1 justify-end mt-4">
+      <div className="flex flex-1 justify-end mt-4 mb-10">
         <FileInput onChange={handleImport} />
       </div>
     </div>
