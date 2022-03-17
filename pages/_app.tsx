@@ -21,7 +21,6 @@ import {
 } from "../utils/account-service";
 import { BalanceService } from "../utils/balance-service";
 import { TokenInfo, TokenListProvider } from "@solana/spl-token-registry";
-import { MintService } from "../utils/dev-service";
 
 type AppAction =
   | {
