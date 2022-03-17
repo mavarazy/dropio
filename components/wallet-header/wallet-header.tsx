@@ -34,7 +34,7 @@ export const WalletHeader = () => {
   return (
     <header className="bg-gray-50 shadow  flex py-6 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-1 max-w-6xl self-center mx-auto">
-        <div className="flex flex-col text-left">
+        <div className="flex flex-col text-left flex-1">
           <h1 className="text-xl font-bold text-gray-900">Wallet</h1>
           {balance.id && <CopiableText text={balance.id} />}
         </div>
@@ -44,7 +44,7 @@ export const WalletHeader = () => {
             <CopiableText text={accountInfo?.mnemonic} />
           </div>
         ) : (
-          <div className="flex flex-1 flex-col items-end">
+          <div className="flex flex-1 justify-end py-1 max-w-2xl">
             <RestoreDropForm />
           </div>
         )}

@@ -42,7 +42,10 @@ export function Navigation() {
                     alt="Dropio"
                   />
                   <Link href="/" passHref>
-                    <span className="text-xl font-bold cursor-pointer ml-2">
+                    <span
+                      className="text-xl uppercase font-bold cursor-pointer ml-2"
+                      style={{ fontFamily: "Press Start\\ 2P", fontSize: 12 }}
+                    >
                       Dropio
                     </span>
                   </Link>
