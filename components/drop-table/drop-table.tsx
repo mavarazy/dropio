@@ -119,7 +119,7 @@ export default function DropTable() {
                         <TokenAddressLink account={account} cluster={cluster} />
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
-                        {account.drop}
+                        {TokenUtils.getHumanAmount(account.drop, "SOL", token)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
                         {account.before &&
