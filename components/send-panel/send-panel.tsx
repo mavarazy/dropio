@@ -4,6 +4,7 @@ import { useGlobalState } from "../../context";
 import { classNames } from "../../utils/class-names";
 import { TokenUtils } from "../../utils/token-utils";
 import { Button } from "../button";
+import truncate from "lodash.truncate";
 
 export const SendPanel = () => {
   const {
@@ -51,7 +52,7 @@ export const SendPanel = () => {
         <dt className="font-normal text-gray-900 font-mono text-xs">SOL</dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex flex-col items-baseline text-2xl font-semibold text-indigo-600">
-            <span>{humanSol}</span>
+            <span className="h-9">{humanSol}</span>
             <span
               className={classNames(
                 enoughSol ? "text-green-500" : "text-red-500",
@@ -79,16 +80,16 @@ export const SendPanel = () => {
         </dd>
       </div>
       <div className="px-4 py-5 sm:p-6">
-        <dt className="text-base font-normal text-gray-900 flex">
+        <dt className="relative text-base font-normal text-gray-900 flex">
           <span className="flex flex-1 font-mono text-xs">DROP AMOUNT</span>
-          <span className="bg-green-500 text-white rounded-full px-3">
-            {mode === "SOL" ? "SOL" : token.name.substring(0, 10)}
+          <span className="bg-green-500 text-white rounded-full px-3 absolute right-0 bottom-0.5">
+            {mode === "SOL" ? "SOL" : truncate(token.name, { length: 10 })}
           </span>
         </dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex flex-1 items-baseline text-2xl font-semibold text-indigo-600">
             <span className="flex flex-1 flex-col">
-              <span>{dropAmount.toPrecision(2)}</span>
+              <span className="h-9">{dropAmount.toPrecision(2)}</span>
               <span
                 className={classNames(
                   enoughSol ? "text-green-500" : "text-red-500",
@@ -106,10 +107,8 @@ export const SendPanel = () => {
                 "text-xl px-3 flex flex-col"
               )}
             >
-              <span className="text-right">{availableAmount}</span>
-              <span className="text-xs text-right">
-                {dropAmount > availableAmount ? "needed" : "enough"}
-              </span>
+              <span className="text-right text-2xl h-9">{availableAmount}</span>
+              <span className="text-xs text-right">available</span>
             </span>
           </div>
         </dd>
@@ -121,7 +120,7 @@ export const SendPanel = () => {
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
           <div className="flex flex-1 items-baseline text-indigo-600">
             <span className="flex flex-1 flex-col">
-              <div>
+              <div className="h-9">
                 <Button
                   icon={faRaindrops}
                   text="Drop"
@@ -130,7 +129,7 @@ export const SendPanel = () => {
                 />
               </div>
               <span className="text-xs text-red-500 font-bold">
-                {!canSend && error}
+                {!canSend && truncate(error, { length: 32 })}
               </span>
             </span>
           </div>

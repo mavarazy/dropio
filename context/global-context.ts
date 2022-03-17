@@ -65,10 +65,12 @@ export type GlobalContextType = {
   accountInfo: AccountInfo | null;
   setWalletId(walletId: string): void;
 
+  onError: (error: unknown) => void;
+
   refreshBalance(): Promise<void>;
-  restoreAccount(form: AccountRestoreForm): Promise<AccountInfo>;
-  createAccount(): Promise<AccountInfo>;
-  drop(): Promise<string>;
+  restoreAccount(form: AccountRestoreForm): Promise<void>;
+  createAccount(): Promise<void>;
+  drop(): Promise<void>;
 };
 
 export const GlobalContext = createContext<GlobalContextType>({
@@ -95,11 +97,12 @@ export const GlobalContext = createContext<GlobalContextType>({
   accountInfo: null,
   setWalletId: () => null,
 
+  onError: (error: unknown) => null,
+
   restoreAccount: () => Promise.reject(),
   refreshBalance: () => Promise.reject(),
   createAccount: () => Promise.reject(),
-
-  drop: () => Promise.resolve(""),
+  drop: () => Promise.reject(),
 });
 
 export const useGlobalState = () => useContext(GlobalContext);

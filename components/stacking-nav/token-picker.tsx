@@ -4,6 +4,7 @@ import React, { Fragment, useCallback } from "react";
 import { useGlobalState } from "../../context";
 import { TokenLogo } from "../token-logo";
 import { List, ListRowProps } from "react-virtualized";
+import truncate from "lodash.truncate";
 
 export const TokenPicker = () => {
   const {
@@ -76,7 +77,7 @@ export const TokenPicker = () => {
               size={42}
             />
             <span className="flex items-center self-center w-full focus:ring-0 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900">
-              {(token?.name ?? token?.address).substring(0, 30)}
+              {truncate(token?.name ?? token?.address, { length: 30 })}
             </span>
             <span className="self-center inset-y-0 right-0 flex items-center pr-2">
               <SelectorIcon

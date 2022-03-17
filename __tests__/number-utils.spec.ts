@@ -2,7 +2,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { render, screen } from "@testing-library/react";
 import { NumberUtils } from "../utils/number-utils";
 
-test("parsing 0.1", () => {
+xtest("parsing 0.1", () => {
   expect(NumberUtils.parseLamport("1")).toEqual(LAMPORTS_PER_SOL);
   expect(NumberUtils.parseLamport("10")).toEqual(BigInt(10 * LAMPORTS_PER_SOL));
   expect(NumberUtils.parseLamport("0.1")).toEqual(

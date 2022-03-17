@@ -7,11 +7,23 @@ import {
   useState,
 } from "react";
 import { Transition } from "@headlessui/react";
-import { CheckCircleIcon } from "@heroicons/react/outline";
 import { XIcon } from "@heroicons/react/solid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationCircle } from "@fortawesome/pro-light-svg-icons";
+
+const errorToMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    if (error.message.includes("429")) {
+      return "Try again later! Network is busy";
+    } else {
+      return error.message;
+    }
+  }
+  return "Captian Obvious: Something went wrong";
+};
 
 export interface NotificationProps {
-  error(message: string): void;
+  error(error: unknown): void;
 }
 
 export const Notification = forwardRef(
@@ -20,21 +32,19 @@ export const Notification = forwardRef(
     const [message, setMessage] = useState("");
 
     useImperativeHandle(ref, () => ({
-      error: (message: string) => {
-        setMessage(message);
+      error: (error: unknown) => {
+        setMessage(errorToMessage(error));
         setShow(true);
       },
     }));
 
     return (
       <>
-        {/* Global notification live region, render this permanently at the end of the document */}
         <div
           aria-live="assertive"
           className="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start"
         >
           <div className="w-full flex flex-col items-center space-y-4 sm:items-end">
-            {/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
             <Transition
               show={show}
               as={Fragment}
@@ -49,8 +59,9 @@ export const Notification = forwardRef(
                 <div className="p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <CheckCircleIcon
-                        className="h-6 w-6 text-green-400"
+                      <FontAwesomeIcon
+                        icon={faExclamationCircle}
+                        className="h-6 w-6 text-red-500"
                         aria-hidden="true"
                       />
                     </div>
