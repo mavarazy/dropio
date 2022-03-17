@@ -6,7 +6,8 @@ import {
   PopulatedDropAccount,
   useGlobalState,
 } from "../../context";
-import { Cluster, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Cluster } from "@solana/web3.js";
+import { TokenUtils } from "../../utils/token-utils";
 
 const AddressLink = ({
   address,
@@ -48,7 +49,7 @@ const TokenAddressLink: React.FC<{
 
 export default function DropTable() {
   const {
-    state: { dropPopulatedAccounts, cluster },
+    state: { dropPopulatedAccounts, cluster, token, mode },
     setDropAccounts,
   } = useGlobalState();
 
@@ -81,25 +82,25 @@ export default function DropTable() {
                   <tr>
                     <th
                       scope="col"
-                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6"
+                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6 w-3/6"
                     >
                       Wallet
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500"
+                      className="px-3 py-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 w-1/6"
                     >
                       Drop
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
+                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 w-1/6"
                     >
                       Before
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
+                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 w-1/6"
                     >
                       After
                     </th>
@@ -122,11 +123,19 @@ export default function DropTable() {
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
                         {account.before &&
                           account.before !== "missing" &&
-                          account.before.amount / LAMPORTS_PER_SOL}
+                          TokenUtils.getHumanAmount(
+                            account.before.amount,
+                            mode,
+                            token
+                          )}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
                         {account.after &&
-                          account.after.amount / LAMPORTS_PER_SOL}
+                          TokenUtils.getHumanAmount(
+                            account.after.amount,
+                            mode,
+                            token
+                          )}
                       </td>
                     </tr>
                   ))}
