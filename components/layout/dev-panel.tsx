@@ -7,20 +7,29 @@ export const DevPanel = () => {
   const {
     state: { cluster },
     accountInfo,
+    onError,
     refreshBalance,
   } = useGlobalState();
 
   const handleAirDrop = async () => {
-    if (accountInfo) {
-      await DevService.drop(cluster, accountInfo?.account);
-      await refreshBalance();
+    try {
+      if (accountInfo) {
+        await DevService.drop(cluster, accountInfo?.account);
+        await refreshBalance();
+      }
+    } catch (error) {
+      onError(error);
     }
   };
 
   const handleMint = async () => {
-    if (accountInfo) {
-      await DevService.mint(cluster, accountInfo?.account);
-      await refreshBalance();
+    try {
+      if (accountInfo) {
+        await DevService.mint(cluster, accountInfo?.account);
+        await refreshBalance();
+      }
+    } catch (error) {
+      onError(error);
     }
   };
 

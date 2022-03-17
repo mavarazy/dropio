@@ -8,6 +8,7 @@ import {
 } from "../../context";
 import { Cluster } from "@solana/web3.js";
 import { TokenUtils } from "../../utils/token-utils";
+import { NumberUtils } from "../../utils/number-utils";
 
 const AddressLink = ({
   address,
@@ -64,7 +65,7 @@ export default function DropTable() {
     const result = Papa.parse(source, {
       header: true,
       transform: (value, field) => {
-        return field === "drop" ? parseFloat(value) : value;
+        return field === "drop" ? NumberUtils.parseLamport(value) : value;
       },
     });
 

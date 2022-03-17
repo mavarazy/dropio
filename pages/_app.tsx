@@ -214,20 +214,24 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     state.dropAccounts.forEach(async (dropAccount) => {
-      const balance = await BalanceService.getDropAccountBalance(
-        state.cluster,
-        dropAccount,
-        state.mode,
-        state.token.address
-      );
+      try {
+        const balance = await BalanceService.getDropAccountBalance(
+          state.cluster,
+          dropAccount,
+          state.mode,
+          state.token.address
+        );
 
-      dispatch({
-        type: "SET_DROP_ACCOUNT_BEFORE",
-        payload: {
-          wallet: dropAccount.wallet,
-          balance,
-        },
-      });
+        dispatch({
+          type: "SET_DROP_ACCOUNT_BEFORE",
+          payload: {
+            wallet: dropAccount.wallet,
+            balance,
+          },
+        });
+      } catch (error) {
+        notificationRef.current?.error(error);
+      }
     });
   }, [
     accountInfo,
@@ -251,69 +255,81 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   const drop = async () => {
     if (!accountInfo) {
-      return "";
+      return;
     }
 
-    const signature = await BalanceService.drop(
-      state.cluster,
-      accountInfo.account,
-      state.dropPopulatedAccounts,
-      state.mode,
-      state.token.address
-    );
+    try {
+      await BalanceService.drop(
+        state.cluster,
+        accountInfo.account,
+        state.dropPopulatedAccounts,
+        state.mode,
+        state.token.address
+      );
 
-    refreshBalance();
+      refreshBalance();
 
-    state.dropAccounts.forEach(async (account) => {
-      if (accountInfo) {
-        const balance = await BalanceService.getDropAccountBalance(
-          state.cluster,
-          account,
-          state.mode,
-          state.token.address
-        );
+      state.dropAccounts.forEach(async (account) => {
+        if (accountInfo) {
+          const balance = await BalanceService.getDropAccountBalance(
+            state.cluster,
+            account,
+            state.mode,
+            state.token.address
+          );
 
-        if (balance !== "missing") {
-          dispatch({
-            type: "SET_DROP_ACCOUNT_AFTER",
-            payload: balance,
-          });
+          if (balance !== "missing") {
+            dispatch({
+              type: "SET_DROP_ACCOUNT_AFTER",
+              payload: balance,
+            });
+          }
         }
-      }
-    });
-    return signature;
+      });
+    } catch (error) {
+      notificationRef.current?.error(error);
+    }
   };
 
   const createAccount = async () => {
-    const accountInfo = await AccountService.create();
+    try {
+      const accountInfo = await AccountService.create();
 
-    setAccountInfo(accountInfo);
+      setAccountInfo(accountInfo);
 
-    router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
-    return accountInfo;
+      router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
+    } catch (error) {
+      notificationRef.current?.error(error);
+    }
   };
 
   const refreshBalance = async () => {
-    const balance = await BalanceService.getWalletBalance(
-      state.cluster,
-      state.balance.id
-    );
-    dispatch({ type: "SET_BALANCE", payload: balance });
+    try {
+      const balance = await BalanceService.getWalletBalance(
+        state.cluster,
+        state.balance.id
+      );
+      dispatch({ type: "SET_BALANCE", payload: balance });
+    } catch (error) {
+      notificationRef.current?.error(error);
+    }
+  };
+
+  const restoreAccount = async (form: AccountRestoreForm) => {
+    try {
+      const accountInfo = await AccountService.restore(form);
+      setAccountInfo(accountInfo);
+
+      router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
+    } catch (error) {
+      notificationRef.current?.error(error);
+    }
   };
 
   useEffect(() => {
     const timeout = setTimeout(() => refreshBalance(), 1000);
     return () => clearTimeout(timeout);
   }, [state.balance.id, state.cluster]);
-
-  const restoreAccount = async (form: AccountRestoreForm) => {
-    const accountInfo = await AccountService.restore(form);
-    setAccountInfo(accountInfo);
-
-    router.push(`/drop/${accountInfo.account.publicKey.toString()}`);
-
-    return accountInfo;
-  };
 
   return (
     <GlobalContext.Provider
@@ -332,6 +348,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         setDropAccounts: (dropAccounts: DropAccount[]) =>
           dispatch({ type: "SET_DROP_ACCOUNT", payload: dropAccounts }),
 
+        onError: (error) => notificationRef.current?.error(error),
         createAccount,
         restoreAccount,
         refreshBalance,
