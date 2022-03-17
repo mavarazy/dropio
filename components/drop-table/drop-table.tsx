@@ -85,7 +85,13 @@ export default function DropTable() {
                   <tr>
                     <th
                       scope="col"
-                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6 w-3/6"
+                      className="py-3 pl-4 text-left text-xs uppercase font-medium tracking-wide text-gray-500 w-[32px]"
+                    >
+                      #
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6 w-5/12"
                     >
                       Wallet
                     </th>
@@ -110,8 +116,11 @@ export default function DropTable() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {dropPopulatedAccounts.map((account) => (
+                  {dropPopulatedAccounts.map((account, i) => (
                     <tr key={account.wallet}>
+                      <td className="whitespace-nowrap py-4 px-1 text-sm font-medium text-gray-900 sm:pl-6">
+                        {i + 1}
+                      </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         <AddressLink
                           address={account.wallet}
