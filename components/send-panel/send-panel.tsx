@@ -44,7 +44,7 @@ export const SendPanel = () => {
         <dt className="text-base font-normal text-gray-900 flex">
           <span className="flex flex-1">Drop Amount</span>{" "}
           <span className="bg-green-500 text-white rounded-full px-3">
-            {mode === "SOL" ? "SOL" : token.name}
+            {mode === "SOL" ? "SOL" : token.name.substring(0, 10)}
           </span>
         </dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">

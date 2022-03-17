@@ -1,11 +1,54 @@
 import { FileInput } from "./file-input";
 import Papa from "papaparse";
-import { DropAccount, useGlobalState } from "../../context";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  DropAccount,
+  DropAccountBalance,
+  PopulatedDropAccount,
+  useGlobalState,
+} from "../../context";
+import { Cluster, LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+const AddressLink = ({
+  address,
+  cluster,
+}: {
+  address: string;
+  cluster: Cluster;
+}) => (
+  <a
+    href={`https://explorer.solana.com/address/${address}?cluster=${cluster}`}
+    target="_blank"
+    className="hover:text-indigo-500"
+    rel="noreferrer"
+  >
+    {address}
+  </a>
+);
+
+const TokenAddressLink: React.FC<{
+  account: PopulatedDropAccount;
+  cluster: Cluster;
+}> = ({ account: { before, after }, cluster }) => {
+  if (!before && !after) {
+    return <span>Loading</span>;
+  }
+  if (before === "missing" && !after) {
+    return <span >missing</span>;
+  }
+
+  const address = after?.address ?? (before as DropAccountBalance)?.address;
+
+  return (
+    <span className="text-xs">
+      Address:&nbsp;
+      <AddressLink address={address} cluster={cluster} />
+    </span>
+  );
+};
 
 export default function DropTable() {
   const {
-    state: { dropPopulatedAccounts },
+    state: { dropPopulatedAccounts, cluster },
     setDropAccounts,
   } = useGlobalState();
 
@@ -66,16 +109,12 @@ export default function DropTable() {
                   {dropPopulatedAccounts.map((account) => (
                     <tr key={account.wallet}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.wallet}
+                        <AddressLink
+                          address={account.wallet}
+                          cluster={cluster}
+                        />
                         <br />
-                        <span className="text-xs text-gray-400">
-                          {!account.before
-                            ? "loading"
-                            : account.before === "missing"
-                            ? account.after?.address ?? "missing"
-                            : account.before.address}
-                          &nbsp;
-                        </span>
+                        <TokenAddressLink account={account} cluster={cluster} />
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500">
                         {account.drop}
