@@ -7,14 +7,13 @@ import { List, ListRowProps } from "react-virtualized";
 
 export const TokenPicker = () => {
   const {
-    tokens,
-    state: { token },
+    state: { token, officialTokens },
     setToken,
   } = useGlobalState();
 
   const renderItem = useCallback(
     (props: ListRowProps) => {
-      const token = tokens[props.index];
+      const token = officialTokens[props.index];
       return (
         <Combobox.Option
           key={token.address}
@@ -63,7 +62,7 @@ export const TokenPicker = () => {
         </Combobox.Option>
       );
     },
-    [tokens]
+    [officialTokens]
   );
 
   return (
@@ -95,7 +94,7 @@ export const TokenPicker = () => {
             <Combobox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               <List
                 height={360}
-                rowCount={tokens.length}
+                rowCount={officialTokens.length}
                 rowRenderer={renderItem}
                 rowHeight={36}
                 width={384}

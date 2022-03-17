@@ -32,6 +32,10 @@ type AppAction =
       payload: TokenInfo;
     }
   | {
+      type: "SET_OFFICIAL_TOKENS";
+      payload: TokenInfo[];
+    }
+  | {
       type: "SET_DROP_ACCOUNT_BEFORE";
       payload: {
         wallet: string;
@@ -73,11 +77,23 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         mode: "SOL",
         cluster: action.payload,
+        balance: {
+          id: state.balance.id,
+          sol: 0,
+          tokens: [],
+        },
         dropAccounts: state.dropAccounts.map((acc) => ({
           wallet: acc.wallet,
           drop: acc.drop,
         })),
       };
+    case "SET_OFFICIAL_TOKENS": {
+      return {
+        ...state,
+        token: action.payload[0],
+        officialTokens: action.payload,
+      };
+    }
     case "SET_TOKEN": {
       return {
         ...state,
@@ -114,9 +130,24 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     }
     case "SET_BALANCE": {
+      const balance = {
+        ...action.payload,
+        tokens: action.payload.tokens.map((tokenAccount) => {
+          const officialToken = state.officialTokens.find(
+            (token) => token.address === tokenAccount.token.address
+          );
+          return officialToken
+            ? {
+                token: officialToken,
+                amount: tokenAccount.amount,
+              }
+            : tokenAccount;
+        }),
+      };
+
       return {
         ...state,
-        balance: action.payload,
+        balance,
       };
     }
     case "SET_WALLET": {
@@ -140,6 +171,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     cluster: "devnet",
     mode: "SOL",
     token: DefaultToken,
+    officialTokens: [],
     balance: {
       id: "CQD3KBgZ8r4TrS2LbU2fEHJm7gf8csQv4LJd2XypntvH",
       sol: 0,
@@ -149,7 +181,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     dropPopulatedAccounts: [],
   });
 
-  const [tokens, setTokens] = useState<TokenInfo[]>([DefaultToken]);
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
   const router = useRouter();
@@ -188,14 +219,13 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     tokenCatalogue.then((tokens) => {
-      const clusterTokens = tokens
+      const officialTokens = tokens
         .filterByClusterSlug(state.cluster)
         .getList()
         .filter((token) => token.decimals > 0);
 
-      const selected: TokenInfo = clusterTokens[0];
-      clusterTokens.sort((a, b) => a.name.localeCompare(b.name));
-      setTokens(clusterTokens);
+      officialTokens.sort((a, b) => a.name.localeCompare(b.name));
+      dispatch({ type: "SET_OFFICIAL_TOKENS", payload: officialTokens });
     });
   }, [state.cluster, tokenCatalogue]);
 
@@ -270,6 +300,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       value={{
         state,
         accountInfo,
+
         setWalletId: (accountId: string) =>
           dispatch({ type: "SET_WALLET", payload: accountId }),
         setCluster: (cluster: Cluster) =>
@@ -280,7 +311,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           dispatch({ type: "SET_TOKEN", payload: token }),
         setDropAccounts: (dropAccounts: DropAccount[]) =>
           dispatch({ type: "SET_DROP_ACCOUNT", payload: dropAccounts }),
-        tokens,
 
         createAccount,
         restoreAccount,

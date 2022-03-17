@@ -45,6 +45,7 @@ export interface AppState {
   cluster: Cluster;
   mode: DropMode;
   token: TokenInfo;
+  officialTokens: TokenInfo[];
   balance: WalletBallance;
   dropAccounts: DropAccount[];
   dropPopulatedAccounts: PopulatedDropAccount[];
@@ -57,8 +58,6 @@ export type GlobalContextType = {
   setMode(mode: DropMode): void;
   setToken(token: TokenInfo): void;
   setDropAccounts: (accounts: DropAccount[]) => void;
-
-  tokens: TokenInfo[];
 
   accountInfo: AccountInfo | null;
   setWalletId(walletId: string): void;
@@ -78,6 +77,7 @@ export const GlobalContext = createContext<GlobalContextType>({
       sol: 0,
       tokens: [],
     },
+    officialTokens: [],
     dropAccounts: [],
     dropPopulatedAccounts: [],
     token: DefaultToken,
@@ -87,8 +87,6 @@ export const GlobalContext = createContext<GlobalContextType>({
   setMode: () => null,
   setToken: () => null,
   setDropAccounts: () => null,
-
-  tokens: [DefaultToken],
 
   accountInfo: null,
   setWalletId: () => null,

@@ -47,7 +47,7 @@ export function TokenAccountPanel() {
                       "font-semibold text-2xl truncate"
                     )}
                   >
-                    {Number(amount) / LAMPORTS_PER_SOL}
+                    {Number(amount) / Math.pow(10, token.decimals)}
                   </p>
                 </div>
                 <TokenLogo

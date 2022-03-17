@@ -1,4 +1,9 @@
-import { faCashRegister, faSync } from "@fortawesome/pro-light-svg-icons";
+import {
+  faCashRegister,
+  faRainbow,
+  faRaindrops,
+  faSync,
+} from "@fortawesome/pro-light-svg-icons";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
@@ -14,8 +19,8 @@ export const SendPanel = () => {
   const availableAmount =
     mode === "SOL"
       ? balance.sol / LAMPORTS_PER_SOL
-      : balance.tokens.find((t) => t.token.address === token.address)?.amount ??
-        0;
+      : (balance.tokens.find((t) => t.token.address === token.address)
+          ?.amount ?? 0) / Math.pow(10, token.decimals);
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,
@@ -36,10 +41,16 @@ export const SendPanel = () => {
         </dd>
       </div>
       <div className="px-4 py-5 sm:p-6">
-        <dt className="text-base font-normal text-gray-900">Drop Amount</dt>
+        <dt className="text-base font-normal text-gray-900 flex">
+          <span className="flex flex-1">Drop Amount</span>{" "}
+          <span className="bg-green-500 text-white rounded-full px-3">
+            {mode === "SOL" ? "SOL" : token.name}
+          </span>
+        </dt>
         <dd className="mt-1 flex justify-between items-baseline md:block lg:flex">
-          <div className="flex items-baseline text-2xl font-semibold text-indigo-600">
-            {dropAmount}
+          <div className="flex flex-1 items-baseline text-2xl font-semibold text-indigo-600">
+            <span className="flex flex-1">{dropAmount}</span>
+            <span className="text-xl px-3">{availableAmount}</span>
           </div>
         </dd>
       </div>
@@ -48,7 +59,7 @@ export const SendPanel = () => {
         <dt className="text-base font-normal text-gray-900">Send</dt>
         <dd className="mt-1 flex items-baseline md:block lg:flex">
           {availableAmount > dropAmount && dropAmount > 0 && accountInfo ? (
-            <Button icon={faCashRegister} text="Send" onClick={drop} />
+            <Button icon={faRaindrops} text="Drop" onClick={drop} />
           ) : (
             <div className="flex items-baseline text-2xl font-semibold">
               {dropAmount === 0 ? (
