@@ -5,7 +5,7 @@ import { Button } from "../button";
 
 export const SendPanel = () => {
   const {
-    state: { balance, mode, tokenAddress, dropAccounts },
+    state: { balance, mode, token, dropAccounts },
     accountInfo,
     drop,
     refreshBalance,
@@ -14,8 +14,8 @@ export const SendPanel = () => {
   const availableAmount =
     mode === "SOL"
       ? balance.sol / LAMPORTS_PER_SOL
-      : balance.tokens.find((token) => token.address === tokenAddress)
-          ?.amount ?? 0;
+      : balance.tokens.find((t) => t.token.address === token.address)?.amount ??
+        0;
 
   const dropAmount = dropAccounts.reduce(
     (agg, { drop: amount }) => agg + amount,

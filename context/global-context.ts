@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 import { Cluster } from "@solana/web3.js";
 import { AccountRestoreForm, AccountInfo } from "../utils/account-service";
 import { TokenInfo } from "@solana/spl-token-registry";
@@ -22,7 +22,7 @@ export interface PopulatedDropAccount {
   after?: DropAccountBalance;
 }
 
-export type TokenAccount = Pick<TokenInfo, "address"> & { amount: number };
+export type TokenAccount = { token: TokenInfo; amount: number };
 
 export interface WalletBallance {
   id: string;
@@ -32,18 +32,19 @@ export interface WalletBallance {
 
 export type DropMode = "SOL" | "Token";
 
-export const FakeToken: TokenInfo = {
-  address: "Test",
-  name: "... loading ...",
-  chainId: 1,
-  decimals: 0,
-  symbol: "LOADING",
+export const DefaultToken: TokenInfo = {
+  chainId: 101,
+  address: "HKfs24UEDQpHS5hUyKYkHd9q7GY5UQ679q2bokeL2whu",
+  symbol: "TINY",
+  name: "TinyBits",
+  decimals: 6,
+  logoURI: "https://tinycolony.io/tinycolonytoken.png",
 };
 
 export interface AppState {
   cluster: Cluster;
   mode: DropMode;
-  tokenAddress: string;
+  token: TokenInfo;
   balance: WalletBallance;
   dropAccounts: DropAccount[];
   dropPopulatedAccounts: PopulatedDropAccount[];
@@ -54,7 +55,7 @@ export type GlobalContextType = {
 
   setCluster(cluster: Cluster): void;
   setMode(mode: DropMode): void;
-  setTokenAddress(token: string): void;
+  setToken(token: TokenInfo): void;
   setDropAccounts: (accounts: DropAccount[]) => void;
 
   tokens: TokenInfo[];
@@ -79,15 +80,15 @@ export const GlobalContext = createContext<GlobalContextType>({
     },
     dropAccounts: [],
     dropPopulatedAccounts: [],
-    tokenAddress: "",
+    token: DefaultToken,
   },
 
   setCluster: () => null,
   setMode: () => null,
-  setTokenAddress: () => null,
+  setToken: () => null,
   setDropAccounts: () => null,
 
-  tokens: [FakeToken],
+  tokens: [DefaultToken],
 
   accountInfo: null,
   setWalletId: () => null,
