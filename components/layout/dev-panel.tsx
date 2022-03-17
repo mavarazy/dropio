@@ -30,8 +30,8 @@ export const DevPanel = () => {
 
   return (
     <div className="flex space-x-2 mx-2">
-      <Button icon={faRaindrops} text="Drop" onClick={handleAirDrop} />
-      <Button icon={faPersonDigging} text="Mint" onClick={handleMint} />
+      <Button icon={faRaindrops} text="Drop me" onClick={handleAirDrop} />
+      <Button icon={faPersonDigging} text="Mint me" onClick={handleMint} />
     </div>
   );
 };

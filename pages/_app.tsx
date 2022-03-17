@@ -6,7 +6,7 @@ import {
   WalletBallance,
   DropAccount,
   DropMode,
-  FakeToken,
+  DefaultToken,
   GlobalContext,
   AppState,
   DropAccountBalance,
@@ -28,8 +28,12 @@ type AppAction =
       payload: Cluster;
     }
   | {
-      type: "SET_TOKEN_ADDRESS";
-      payload: string;
+      type: "SET_TOKEN";
+      payload: TokenInfo;
+    }
+  | {
+      type: "SET_OFFICIAL_TOKENS";
+      payload: TokenInfo[];
     }
   | {
       type: "SET_DROP_ACCOUNT_BEFORE";
@@ -73,16 +77,28 @@ function reducer(state: AppState, action: AppAction): AppState {
         ...state,
         mode: "SOL",
         cluster: action.payload,
+        balance: {
+          id: state.balance.id,
+          sol: 0,
+          tokens: [],
+        },
         dropAccounts: state.dropAccounts.map((acc) => ({
           wallet: acc.wallet,
           drop: acc.drop,
         })),
       };
-    case "SET_TOKEN_ADDRESS": {
+    case "SET_OFFICIAL_TOKENS": {
+      return {
+        ...state,
+        token: action.payload[0],
+        officialTokens: action.payload,
+      };
+    }
+    case "SET_TOKEN": {
       return {
         ...state,
         mode: "Token",
-        tokenAddress: action.payload,
+        token: action.payload,
         dropPopulatedAccounts: state.dropAccounts,
       };
     }
@@ -114,9 +130,24 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     }
     case "SET_BALANCE": {
+      const balance = {
+        ...action.payload,
+        tokens: action.payload.tokens.map((tokenAccount) => {
+          const officialToken = state.officialTokens.find(
+            (token) => token.address === tokenAccount.token.address
+          );
+          return officialToken
+            ? {
+                token: officialToken,
+                amount: tokenAccount.amount,
+              }
+            : tokenAccount;
+        }),
+      };
+
       return {
         ...state,
-        balance: action.payload,
+        balance,
       };
     }
     case "SET_WALLET": {
@@ -139,7 +170,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [state, dispatch] = useReducer(reducer, {
     cluster: "devnet",
     mode: "SOL",
-    tokenAddress: "CQD3KBgZ8r4TrS2LbU2fEHJm7gf8csQv4LJd2XypntvH",
+    token: DefaultToken,
+    officialTokens: [],
     balance: {
       id: "CQD3KBgZ8r4TrS2LbU2fEHJm7gf8csQv4LJd2XypntvH",
       sol: 0,
@@ -149,7 +181,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     dropPopulatedAccounts: [],
   });
 
-  const [tokens, setTokens] = useState<TokenInfo[]>([FakeToken]);
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
 
   const router = useRouter();
@@ -167,7 +198,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         state.cluster,
         dropAccount,
         state.mode,
-        state.tokenAddress
+        state.token.address
       );
 
       dispatch({
@@ -183,18 +214,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     state.cluster,
     state.dropAccounts,
     state.mode,
-    state.tokenAddress,
+    state.token.address,
   ]);
 
   useEffect(() => {
     tokenCatalogue.then((tokens) => {
-      const clusterTokens = tokens
+      const officialTokens = tokens
         .filterByClusterSlug(state.cluster)
         .getList()
         .filter((token) => token.decimals > 0);
 
-      clusterTokens.sort((a, b) => a.name.localeCompare(b.name));
-      setTokens(clusterTokens);
+      officialTokens.sort((a, b) => a.name.localeCompare(b.name));
+      dispatch({ type: "SET_OFFICIAL_TOKENS", payload: officialTokens });
     });
   }, [state.cluster, tokenCatalogue]);
 
@@ -208,7 +239,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       accountInfo.account,
       state.dropPopulatedAccounts,
       state.mode,
-      state.tokenAddress
+      state.token.address
     );
 
     refreshBalance();
@@ -219,7 +250,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           state.cluster,
           account,
           state.mode,
-          state.tokenAddress
+          state.token.address
         );
 
         if (balance !== "missing") {
@@ -250,6 +281,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     dispatch({ type: "SET_BALANCE", payload: balance });
   };
 
+  useEffect(() => {
+    const timeout = setTimeout(() => refreshBalance(), 1000);
+    return () => clearTimeout(timeout);
+  }, [state.balance.id, state.cluster]);
+
   const restoreAccount = async (form: AccountRestoreForm) => {
     const accountInfo = await AccountService.restore(form);
     setAccountInfo(accountInfo);
@@ -264,17 +300,17 @@ function MyApp({ Component, pageProps }: AppProps) {
       value={{
         state,
         accountInfo,
+
         setWalletId: (accountId: string) =>
           dispatch({ type: "SET_WALLET", payload: accountId }),
         setCluster: (cluster: Cluster) =>
           dispatch({ type: "SET_CLUSTER", payload: cluster }),
         setMode: (mode: DropMode) =>
           dispatch({ type: "SET_MODE", payload: mode }),
-        setTokenAddress: (tokenAddress: string) =>
-          dispatch({ type: "SET_TOKEN_ADDRESS", payload: tokenAddress }),
+        setToken: (token: TokenInfo) =>
+          dispatch({ type: "SET_TOKEN", payload: token }),
         setDropAccounts: (dropAccounts: DropAccount[]) =>
           dispatch({ type: "SET_DROP_ACCOUNT", payload: dropAccounts }),
-        tokens: tokens,
 
         createAccount,
         restoreAccount,

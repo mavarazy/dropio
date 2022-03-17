@@ -7,16 +7,13 @@ import { List, ListRowProps } from "react-virtualized";
 
 export const TokenPicker = () => {
   const {
-    tokens,
-    state: { tokenAddress },
-    setTokenAddress,
+    state: { token, officialTokens },
+    setToken,
   } = useGlobalState();
-
-  const tokenInfo = tokens.find((t) => t.address === tokenAddress);
 
   const renderItem = useCallback(
     (props: ListRowProps) => {
-      const token = tokens[props.index];
+      const token = officialTokens[props.index];
       return (
         <Combobox.Option
           key={token.address}
@@ -26,7 +23,7 @@ export const TokenPicker = () => {
             }`
           }
           style={props.style}
-          value={token.address}
+          value={token}
         >
           {({ selected, active }) => (
             <>
@@ -65,21 +62,21 @@ export const TokenPicker = () => {
         </Combobox.Option>
       );
     },
-    [tokens]
+    [officialTokens]
   );
 
   return (
     <div className="w-96 mx-2">
-      <Combobox value={tokenAddress} onChange={setTokenAddress}>
+      <Combobox value={token} onChange={setToken}>
         <div className="relative mt-1">
           <Combobox.Button className="relative w-full flex text-left bg-white rounded-lg shadow-md sm:text-sm overflow-hidden cursor-pointer">
             <TokenLogo
-              logoURI={tokenInfo?.logoURI}
+              logoURI={token?.logoURI}
               className="p-1 rounded-full"
               size={42}
             />
             <span className="flex items-center w-full border-none focus:ring-0 py-2 pl-3 pr-10 text-sm leading-5 text-gray-900">
-              {tokenInfo?.name ?? tokenAddress}
+              {token?.name ?? token?.address}
             </span>
             <span className="absolute inset-y-0 right-0 flex items-center pr-2">
               <SelectorIcon
@@ -97,7 +94,7 @@ export const TokenPicker = () => {
             <Combobox.Options className="absolute w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               <List
                 height={360}
-                rowCount={tokens.length}
+                rowCount={officialTokens.length}
                 rowRenderer={renderItem}
                 rowHeight={36}
                 width={384}

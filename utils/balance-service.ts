@@ -5,6 +5,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import { TokenInfo } from "@solana/spl-token-registry";
 import {
   Cluster,
   clusterApiUrl,
@@ -38,14 +39,31 @@ const getTokens = async (
     }
   );
 
-  return tokenAccounts.value.map((accountBuffer) => {
-    const accountInfo = AccountLayout.decode(accountBuffer.account.data);
+  return tokenAccounts.value.reduce(
+    (agg: Promise<TokenAccount[]>, accountBuffer) => {
+      const accountInfo = AccountLayout.decode(accountBuffer.account.data);
 
-    return {
-      address: accountInfo.mint.toString(),
-      amount: Number(accountInfo.amount),
-    };
-  });
+      return agg.then(async (accounts: TokenAccount[]) => {
+        const mint = await getMint(connection, accountInfo.mint);
+
+        const token: TokenInfo = {
+          chainId: -1,
+          address: mint.address.toString(),
+          name: mint.address.toString(),
+          decimals: mint.decimals,
+          symbol: "string;",
+        };
+
+        const account: TokenAccount = {
+          token,
+          amount: Number(accountInfo.amount),
+        };
+
+        return accounts.concat(account);
+      });
+    },
+    Promise.resolve([])
+  );
 };
 
 const getSolBalance = async (cluster: Cluster, accountId: string) => {
