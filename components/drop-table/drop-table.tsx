@@ -1,14 +1,20 @@
-import { FileInput } from "./file-input";
-import Papa from "papaparse";
 import {
-  DropAccount,
   DropAccountBalance,
   PopulatedDropAccount,
   useGlobalState,
 } from "../../context";
 import { Cluster } from "@solana/web3.js";
 import { TokenUtils } from "../../utils/token-utils";
-import { NumberUtils } from "../../utils/number-utils";
+import {
+  AutoSizer,
+  List,
+  ListRowProps,
+  Table,
+  Column,
+  WindowScroller,
+} from "react-virtualized";
+import { useCallback } from "react";
+import { classNames } from "../../utils/class-names";
 
 const AddressLink = ({
   address,
@@ -48,118 +54,92 @@ const TokenAddressLink: React.FC<{
   );
 };
 
-export default function DropTable() {
+export function DropTable() {
   const {
     state: { dropPopulatedAccounts, cluster, token, mode },
-    setDropAccounts,
   } = useGlobalState();
 
-  const handleImport = async (files: FileList) => {
-    const file = files.item(0);
-    if (file === null) {
-      return;
-    }
-
-    const source = await file.text();
-
-    const result = Papa.parse(source, {
-      header: true,
-      transform: (value, field) => {
-        return field === "drop"
-          ? NumberUtils.parseLamport(value.replaceAll("\"|'", ""))
-          : value;
-      },
-    });
-
-    setDropAccounts(result.data as DropAccount[]);
-  };
-
-  return (
-    <div>
-      <div className="mt-2 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg flex space-y-1">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="py-3 pl-4 text-left text-xs uppercase font-medium tracking-wide text-gray-500 w-[32px]"
-                    >
-                      #
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3 pl-4 pr-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 sm:pl-6 w-5/12"
-                    >
-                      Wallet
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3 text-left text-xs uppercase font-medium tracking-wide text-gray-500 w-1/6"
-                    >
-                      Drop
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 w-1/6"
-                    >
-                      Before
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 w-1/6"
-                    >
-                      After
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {dropPopulatedAccounts.map((account, i) => (
-                    <tr key={account.wallet}>
-                      <td className="whitespace-nowrap py-4 px-1 text-sm font-medium text-gray-900 sm:pl-6">
-                        {i + 1}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        <AddressLink
-                          address={account.wallet}
-                          cluster={cluster}
-                        />
-                        <br />
-                        <TokenAddressLink account={account} cluster={cluster} />
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500">
-                        {TokenUtils.getHumanAmount(account.drop, "SOL", token)}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 bg-gray-50">
-                        {account.before &&
-                          account.before !== "missing" &&
-                          TokenUtils.getHumanAmount(
-                            account.before.amount,
-                            mode,
-                            token
-                          )}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 bg-gray-100">
-                        {account.after &&
-                          TokenUtils.getHumanAmount(
-                            account.after.amount,
-                            mode,
-                            token
-                          )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+  const renderItem = useCallback(
+    (props: ListRowProps) => {
+      const account = dropPopulatedAccounts[props.index];
+      return (
+        <div
+          key={account.wallet}
+          style={props.style}
+          className={classNames(
+            props.index % 2 === 0 ? "bg-gray-100" : "bg-white",
+            "flex flex-1 w-full text-sm font-medium"
+          )}
+        >
+          <div className="text-gray-900 w-20 px-2 flex items-center justify-start">
+            {props.index + 1}
+          </div>
+          <div className="text-gray-900 px-2 flex flex-1 flex-col justify-center">
+            <AddressLink address={account.wallet} cluster={cluster} />
+            <TokenAddressLink account={account} cluster={cluster} />
+          </div>
+          <div className="px-4 text-gray-500 w-24 flex items-center">
+            {TokenUtils.getHumanAmount(account.drop, "SOL", token)}
+          </div>
+          <div className="px-4 text-gray-500 w-48 flex flex-col justify-center">
+            <span
+              className={
+                account.before === "missing" ||
+                account.before?.amount === BigInt(0)
+                  ? "text-gray-300"
+                  : ""
+              }
+            >
+              {account.before &&
+                account.before !== "missing" &&
+                TokenUtils.getHumanAmount(account.before.amount, mode, token)}
+            </span>
+            {account.after && (
+              <span className={account.after ? "" : "text-gray-300"}>
+                after:
+                {account.after &&
+                  TokenUtils.getHumanAmount(account.after.amount, mode, token)}
+              </span>
+            )}
           </div>
         </div>
+      );
+    },
+    [dropPopulatedAccounts, cluster, mode, token]
+  );
+
+  return (
+    <div className="mt-2 flex flex-col flex-1 mb-10">
+      <div className="bg-gray-50 flex text-xl rounded-t-lg text-gray-500">
+        <div className="w-20 py-3 pl-4 text-left text-xs uppercase font-medium tracking-wide  flex items-center justify-start">
+          #
+        </div>
+        <div className="px-2 flex flex-1 flex-col justify-center py-3 pl-4 pr-3 text-left text-xs uppercase">
+          Wallet
+        </div>
+        <div className="px-4 w-24 flex items-center py-3 pl-4 pr-3 text-left text-xs uppercase">
+          Drop
+        </div>
+        <div className="px-4 w-48 flex flex-col justify-center py-3 pl-4 pr-3 text-left text-xs uppercase">
+          Balance
+        </div>
       </div>
-      <div className="flex flex-1 justify-end mt-4 mb-10">
-        <FileInput onChange={handleImport} />
-      </div>
+      <WindowScroller>
+        {({ height, isScrolling, onChildScroll, scrollTop, width }) => (
+          <List
+            autoHeight
+            height={height}
+            isScrolling={isScrolling}
+            onScroll={onChildScroll}
+            scrollTop={scrollTop}
+            rowCount={dropPopulatedAccounts.length}
+            rowRenderer={renderItem}
+            rowHeight={48}
+            autoWidth
+            width={width}
+          />
+        )}
+      </WindowScroller>
     </div>
   );
 }

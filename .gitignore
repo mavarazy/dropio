@@ -34,3 +34,5 @@ yarn.lock
 
 # vercel
 .vercel
+
+__tests__/data
