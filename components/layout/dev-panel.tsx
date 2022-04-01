@@ -2,10 +2,14 @@ import { faPersonDigging, faRaindrops } from "@fortawesome/pro-light-svg-icons";
 import { useGlobalState } from "../../context";
 import { Button } from "../button";
 import { DevService } from "../../utils/dev-service";
+import { PublicKey } from "@solana/web3.js";
 
 export const DevPanel = () => {
   const {
-    state: { cluster },
+    state: {
+      cluster,
+      balance: { id },
+    },
     accountInfo,
     onError,
     refreshBalance,
@@ -13,10 +17,8 @@ export const DevPanel = () => {
 
   const handleAirDrop = async () => {
     try {
-      if (accountInfo) {
-        await DevService.drop(cluster, accountInfo?.account);
-        await refreshBalance();
-      }
+      await DevService.drop(cluster, new PublicKey(id));
+      await refreshBalance();
     } catch (error) {
       onError(error);
     }
@@ -33,14 +35,16 @@ export const DevPanel = () => {
     }
   };
 
-  if (cluster !== "devnet" || accountInfo === null) {
+  if (cluster !== "devnet") {
     return null;
   }
 
   return (
     <div className="flex space-x-2 mx-2">
       <Button icon={faRaindrops} text="Drop me" onClick={handleAirDrop} />
-      <Button icon={faPersonDigging} text="Mint me" onClick={handleMint} />
+      {accountInfo && (
+        <Button icon={faPersonDigging} text="Mint me" onClick={handleMint} />
+      )}
     </div>
   );
 };

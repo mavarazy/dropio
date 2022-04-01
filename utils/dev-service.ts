@@ -11,6 +11,7 @@ import {
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
+  PublicKey,
 } from "@solana/web3.js";
 
 const mint = async (cluster: Cluster, account: Keypair): Promise<Mint> => {
@@ -49,16 +50,15 @@ const mint = async (cluster: Cluster, account: Keypair): Promise<Mint> => {
 
 const drop = async (
   cluster: Cluster,
-  account: Keypair | null
+  account: PublicKey | null
 ): Promise<void> => {
   // This line ensures the function returns before running if no account has been set
   if (!account || cluster !== "devnet") return;
 
   try {
     const connection = new Connection(clusterApiUrl(cluster), "confirmed");
-    const publicKey = account.publicKey;
     const airdropSignature = await connection.requestAirdrop(
-      publicKey,
+      account,
       LAMPORTS_PER_SOL
     );
     await connection.confirmTransaction(airdropSignature, "confirmed");
