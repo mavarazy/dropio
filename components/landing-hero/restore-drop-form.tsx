@@ -15,12 +15,12 @@ export function RestoreDropForm() {
   return (
     <form className="flex flex-1 h-10" onSubmit={handleSubmit(restoreAccount)}>
       <div className="flex flex-1">
-        <label htmlFor="email" className="sr-only">
-          Mnemonic
+        <label htmlFor="mnemonic" className="sr-only">
+          Mnemonic or Private key
         </label>
         <input
           className="border-b bg-transparent focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none focus:border-b-2 block w-full sm:text-sm border-gray-300 py-2 px-2"
-          placeholder="Mnemonic"
+          placeholder="Mnemonic or Private Key"
           {...register("mnemonic")}
         />
       </div>
