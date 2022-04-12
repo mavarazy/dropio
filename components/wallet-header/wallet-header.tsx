@@ -19,8 +19,8 @@ const CopiableText: React.FC<CopiableTextProps> = ({ text }) => {
       className="text-sm text-blue-500 font-medium cursor-pointer rounded-full hover:text-blue-800"
       onClick={handleTextCopy}
     >
+      <FontAwesomeIcon icon={faCopy} className="mr-1" />
       {text}
-      <FontAwesomeIcon icon={faCopy} className="ml-1" />
     </p>
   );
 };
@@ -39,8 +39,10 @@ export const WalletHeader = () => {
           {balance.id && <CopiableText text={balance.id} />}
         </div>
         {accountInfo?.mnemonic ? (
-          <div className="flex flex-1 flex-col text-right">
-            <h1 className="text-xl font-bold text-gray-900">Mnemonic</h1>
+          <div className="flex flex-1 flex-col text-right truncate">
+            <h1 className="text-xl font-bold text-gray-900">
+              {accountInfo.mnemonic.includes(" ") ? "Mnemonic" : "Private Key"}
+            </h1>
             <CopiableText text={accountInfo?.mnemonic} />
           </div>
         ) : (
