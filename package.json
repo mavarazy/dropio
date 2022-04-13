@@ -21,6 +21,7 @@
     "@solana/spl-token-registry": "^0.2.2911",
     "@solana/web3.js": "^1.36.0",
     "bip39": "^3.0.4",
+    "bs58": "^5.0.0",
     "copy-to-clipboard": "^3.3.1",
     "lodash.chunk": "^4.2.0",
     "lodash.repeat": "^4.1.0",
