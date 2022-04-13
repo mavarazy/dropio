@@ -1,5 +1,11 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { ForwardedRef, forwardRef, Fragment, useImperativeHandle } from "react";
+import {
+  ForwardedRef,
+  forwardRef,
+  Fragment,
+  useImperativeHandle,
+  useMemo,
+} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
 import { useToggle } from "react-use";
@@ -18,7 +24,10 @@ export const MintSlideOver = forwardRef(
     const [open, toggleOpen] = useToggle(false);
 
     const {
-      state: { cluster },
+      state: {
+        cluster,
+        balance: { id, tokens },
+      },
       accountInfo,
       onError,
       refreshBalance,
@@ -27,6 +36,14 @@ export const MintSlideOver = forwardRef(
     useImperativeHandle(ref, () => ({
       open: toggleOpen,
     }));
+
+    const selfMinted = useMemo(
+      () =>
+        tokens
+          .filter((token) => token.mint.mintAuthority?.toString() === id)
+          .map(({ mint }) => mint.address.toString()),
+      [id, tokens]
+    );
 
     const handleMint = async (mintForm: DevMintForm) => {
       try {
@@ -86,6 +103,13 @@ export const MintSlideOver = forwardRef(
                     <div className="relative mt-6 flex-1 px-4 sm:px-6">
                       <div className="absolute inset-0 px-4 sm:px-6">
                         <div className="h-full" aria-hidden="true">
+                          {selfMinted.map((mintId) => (
+                            <MintForm
+                              key={mintId}
+                              mintId={mintId}
+                              onMint={handleMint}
+                            />
+                          ))}
                           <MintForm onMint={handleMint} />
                         </div>
                       </div>

@@ -11,7 +11,6 @@ import {
   clusterApiUrl,
   Connection,
   Keypair,
-  LAMPORTS_PER_SOL,
   PublicKey,
   sendAndConfirmTransaction,
   SystemProgram,
@@ -58,6 +57,7 @@ const getTokens = async (
         const account: TokenAccount = {
           token,
           amount: accountInfo.amount,
+          mint,
         };
 
         return accounts.concat(account);

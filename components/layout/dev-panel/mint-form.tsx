@@ -1,5 +1,7 @@
-import { faDigg } from "@fortawesome/free-brands-svg-icons";
-import { faArrowRotateRight } from "@fortawesome/pro-light-svg-icons";
+import {
+  faArrowRotateRight,
+  faPersonDigging,
+} from "@fortawesome/pro-light-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { classNames } from "../../../utils/class-names";
@@ -43,7 +45,7 @@ export const MintForm: React.FC<MintFormProps> = ({ mintId, onMint }) => {
           )}
         >
           <FontAwesomeIcon
-            icon={formState.isSubmitting ? faArrowRotateRight : faDigg}
+            icon={formState.isSubmitting ? faArrowRotateRight : faPersonDigging}
             className="mx-2"
             spin={formState.isSubmitting}
           />
