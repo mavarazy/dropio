@@ -44,7 +44,7 @@ export const TokenCard = ({
             "font-semibold text-2xl truncate"
           )}
         >
-          {TokenUtils.getHumanAmount(amount, "Token", token)}
+          {TokenUtils.getHumanAmount(amount, "Token", token).toLocaleString()}
         </p>
       </div>
       <TokenLogo

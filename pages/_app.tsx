@@ -157,6 +157,7 @@ function reducer(state: AppState, action: AppAction): AppState {
           );
           return officialToken
             ? {
+                ...tokenAccount,
                 token: officialToken,
                 amount: tokenAccount.amount,
               }

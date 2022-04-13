@@ -2,6 +2,7 @@ import { createContext, useContext } from "react";
 import { Cluster } from "@solana/web3.js";
 import { AccountRestoreForm, AccountInfo } from "../utils/account-service";
 import { TokenInfo } from "@solana/spl-token-registry";
+import { Mint } from "@solana/spl-token";
 
 export interface DropAccount {
   wallet: string;
@@ -22,7 +23,11 @@ export interface PopulatedDropAccount {
   after?: DropAccountBalance;
 }
 
-export type TokenAccount = { token: TokenInfo; amount: bigint };
+export type TokenAccount = {
+  token: TokenInfo;
+  amount: bigint;
+  mint: Mint;
+};
 
 export interface WalletBallance {
   id: string;
@@ -43,6 +48,7 @@ export const DefaultToken: TokenInfo = {
 
 export const TransactionFee = BigInt(5000);
 export const AccountCreationFee = BigInt(2044280);
+
 export interface AppState {
   cluster: Cluster;
   mode: DropMode;

@@ -14,7 +14,15 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-const mint = async (cluster: Cluster, account: Keypair): Promise<Mint> => {
+const getOrCreateMint = async (
+  cluster: Cluster,
+  account: Keypair,
+  mintId?: string
+) => {
+  if (mintId) {
+    return new PublicKey(mintId);
+  }
+
   const payer = account;
   const mintAuthority = account;
   const freezeAuthority = account;
@@ -29,6 +37,22 @@ const mint = async (cluster: Cluster, account: Keypair): Promise<Mint> => {
     9
   );
 
+  return mint;
+};
+
+const mint = async (
+  cluster: Cluster,
+  account: Keypair,
+  amount: bigint,
+  mintId?: string
+): Promise<Mint> => {
+  const payer = account;
+  const mintAuthority = account;
+
+  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+
+  const mint = await getOrCreateMint(cluster, account, mintId);
+
   const tokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
     payer,
@@ -42,7 +66,7 @@ const mint = async (cluster: Cluster, account: Keypair): Promise<Mint> => {
     mint,
     tokenAccount.address,
     mintAuthority,
-    100 * LAMPORTS_PER_SOL
+    amount * BigInt(LAMPORTS_PER_SOL)
   );
 
   return getMint(connection, mint);
