@@ -28,7 +28,7 @@ export const MintForm: React.FC<MintFormProps> = ({ mintId, onMint }) => {
       <h4 className="text-xs font-bold py-1 px-2 truncate max-w-[200px]">
         {mintId || "NEW"}
       </h4>
-      <form onSubmit={handleSubmit(onMint)} className="flex flex-1">
+      <form onSubmit={handleSubmit(onMint)} className="flex flex-1 mb-2">
         <input
           type="text"
           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-full px-4 flex-1 mr-5"
