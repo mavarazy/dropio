@@ -6,35 +6,41 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useForm } from "react-hook-form";
 import { classNames } from "../../../utils/class-names";
 
-export interface DevMintForm {
-  mintId?: string;
+export interface ICreateMintForm {
+  digits: number;
   amount: bigint;
 }
 
-interface MintFormProps {
-  mintId?: string;
-  onMint(form: DevMintForm): void;
+interface CreateMintFormProps {
+  onMint(form: ICreateMintForm): void;
 }
 
-export const MintForm: React.FC<MintFormProps> = ({ mintId, onMint }) => {
-  const { register, formState, handleSubmit } = useForm<DevMintForm>({
+export const CreateMintForm: React.FC<CreateMintFormProps> = ({ onMint }) => {
+  const { register, formState, handleSubmit } = useForm<ICreateMintForm>({
     defaultValues: {
-      mintId,
+      digits: 9,
     },
   });
 
   return (
     <>
-      <h4 className="text-xs font-bold py-1 px-2 truncate max-w-[200px]">
-        {mintId || "NEW"}
-      </h4>
       <form onSubmit={handleSubmit(onMint)} className="flex flex-1 mb-2">
         <input
           type="text"
-          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-full px-4 flex-1 mr-5"
+          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border rounded-full px-4 flex-1"
           placeholder="Amount"
           {...register("amount", { required: true })}
         />
+        <select
+          {...register("digits")}
+          className="mx-4 block pl-3 pr-10 text-base border focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-full"
+        >
+          {Array.from(new Array(10), (_, i) => (
+            <option value={i} key={i}>
+              {i}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           className={classNames(
@@ -49,7 +55,7 @@ export const MintForm: React.FC<MintFormProps> = ({ mintId, onMint }) => {
             className="mx-2"
             spin={formState.isSubmitting}
           />
-          <span className="mr-2 my-auto">Mint</span>
+          <span className="mr-2 my-auto">Create</span>
         </button>
       </form>
     </>
