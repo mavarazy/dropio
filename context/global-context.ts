@@ -43,6 +43,7 @@ export const DefaultToken: TokenInfo = {
 
 export const TransactionFee = BigInt(5000);
 export const AccountCreationFee = BigInt(2044280);
+
 export interface AppState {
   cluster: Cluster;
   mode: DropMode;
