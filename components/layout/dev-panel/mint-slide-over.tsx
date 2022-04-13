@@ -13,7 +13,9 @@ import { useGlobalState } from "../../../context";
 import { DevService } from "../../../utils/dev-service";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPersonDigging } from "@fortawesome/pro-light-svg-icons";
-import { DevMintForm, MintForm } from "./mint-form";
+import { ICreateMintForm, CreateMintForm } from "./create-mint-form";
+import { MintMoreForm } from "./mint-more-form";
+import { Mint } from "@solana/spl-token";
 
 export interface MintSlideOverRef {
   open(): void;
@@ -41,18 +43,34 @@ export const MintSlideOver = forwardRef(
       () =>
         tokens
           .filter((token) => token.mint.mintAuthority?.toString() === id)
-          .map(({ mint }) => mint.address.toString()),
+          .map(({ mint }) => mint),
       [id, tokens]
     );
 
-    const handleMint = async (mintForm: DevMintForm) => {
+    const handleMintMore = async (mint: Mint, amount: bigint) => {
+      try {
+        if (accountInfo) {
+          await DevService.mintMore(
+            cluster,
+            accountInfo?.account,
+            mint,
+            amount
+          );
+          await refreshBalance();
+        }
+      } catch (error) {
+        onError(error);
+      }
+    };
+
+    const handleMint = async (form: ICreateMintForm) => {
       try {
         if (accountInfo) {
           await DevService.mint(
             cluster,
             accountInfo?.account,
-            BigInt(mintForm.amount),
-            mintForm.mintId
+            BigInt(form.amount),
+            form.digits
           );
           await refreshBalance();
         }
@@ -86,7 +104,7 @@ export const MintSlideOver = forwardRef(
                     <div className="px-4 sm:px-6">
                       <div className="flex items-start justify-between">
                         <Dialog.Title className="text-lg font-medium text-gray-900">
-                          <FontAwesomeIcon icon={faPersonDigging} /> MINT ME
+                          <FontAwesomeIcon icon={faPersonDigging} /> MINT
                         </Dialog.Title>
                         <div className="ml-3 flex h-7 items-center">
                           <button
@@ -103,14 +121,27 @@ export const MintSlideOver = forwardRef(
                     <div className="relative mt-6 flex-1 px-4 sm:px-6">
                       <div className="absolute inset-0 px-4 sm:px-6">
                         <div className="h-full" aria-hidden="true">
-                          {selfMinted.map((mintId) => (
-                            <MintForm
-                              key={mintId}
-                              mintId={mintId}
-                              onMint={handleMint}
+                          <CreateMintForm onMint={handleMint} />
+                          <div className="relative my-4">
+                            <div
+                              className="absolute inset-0 flex items-center"
+                              aria-hidden="true"
+                            >
+                              <div className="w-full border-t border-gray-200" />
+                            </div>
+                            <div className="relative flex justify-center">
+                              <span className="px-2 bg-white text-lg text-gray-400">
+                                OR
+                              </span>
+                            </div>
+                          </div>
+                          {selfMinted.map((mint) => (
+                            <MintMoreForm
+                              key={mint.address.toString()}
+                              mint={mint}
+                              onMintMore={handleMintMore}
                             />
                           ))}
-                          <MintForm onMint={handleMint} />
                         </div>
                       </div>
                     </div>

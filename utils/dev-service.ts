@@ -14,15 +14,42 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-const getOrCreateMint = async (
+const mintMore = async (
   cluster: Cluster,
   account: Keypair,
-  mintId?: string
+  mint: Mint,
+  amount: bigint
 ) => {
-  if (mintId) {
-    return new PublicKey(mintId);
-  }
+  const payer = account;
+  const mintAuthority = account;
 
+  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
+
+  const tokenAccount = await getOrCreateAssociatedTokenAccount(
+    connection,
+    payer,
+    mint.address,
+    payer.publicKey
+  );
+
+  await mintTo(
+    connection,
+    payer,
+    mint.address,
+    tokenAccount.address,
+    mintAuthority,
+    amount * BigInt(Math.pow(10, mint.decimals))
+  );
+
+  return mint;
+};
+
+const mint = async (
+  cluster: Cluster,
+  account: Keypair,
+  amount: bigint,
+  decimals: number
+): Promise<Mint> => {
   const payer = account;
   const mintAuthority = account;
   const freezeAuthority = account;
@@ -34,24 +61,8 @@ const getOrCreateMint = async (
     payer,
     mintAuthority.publicKey,
     freezeAuthority.publicKey,
-    9
+    decimals
   );
-
-  return mint;
-};
-
-const mint = async (
-  cluster: Cluster,
-  account: Keypair,
-  amount: bigint,
-  mintId?: string
-): Promise<Mint> => {
-  const payer = account;
-  const mintAuthority = account;
-
-  const connection = new Connection(clusterApiUrl(cluster), "confirmed");
-
-  const mint = await getOrCreateMint(cluster, account, mintId);
 
   const tokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
@@ -66,7 +77,7 @@ const mint = async (
     mint,
     tokenAccount.address,
     mintAuthority,
-    amount * BigInt(LAMPORTS_PER_SOL)
+    amount * BigInt(Math.pow(10, decimals))
   );
 
   return getMint(connection, mint);
@@ -93,4 +104,4 @@ const drop = async (
   }
 };
 
-export const DevService = { mint, drop };
+export const DevService = { mint, mintMore, drop };
